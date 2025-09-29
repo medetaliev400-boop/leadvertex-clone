@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, JSON, ForeignKey, Decimal, Index
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, JSON, ForeignKey, DECIMAL, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
@@ -39,7 +39,7 @@ class Order(Base):
     postal_code = Column(String(20), nullable=True)
     
     # Order details
-    total_amount = Column(Decimal(10, 2), nullable=False, default=0)
+    total_amount = Column(DECIMAL(10, 2), nullable=False, default=0)
     comment = Column(Text, nullable=True)
     internal_comment = Column(Text, nullable=True)
     
@@ -65,13 +65,13 @@ class Order(Base):
     
     # Shipping
     shipping_service = Column(String(100), nullable=True)
-    shipping_cost = Column(Decimal(10, 2), default=0)
+    shipping_cost = Column(DECIMAL(10, 2), default=0)
     tracking_number = Column(String(255), nullable=True, index=True)
     
     # Payment
     payment_method = Column(String(50), nullable=True)
     payment_status = Column(String(20), default="pending")
-    paid_amount = Column(Decimal(10, 2), default=0)
+    paid_amount = Column(DECIMAL(10, 2), default=0)
     
     # Call center
     calls_count = Column(Integer, default=0)
@@ -127,8 +127,8 @@ class OrderItem(Base):
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     
     quantity = Column(Integer, nullable=False, default=1)
-    price = Column(Decimal(10, 2), nullable=False)
-    total = Column(Decimal(10, 2), nullable=False)
+    price = Column(DECIMAL(10, 2), nullable=False)
+    total = Column(DECIMAL(10, 2), nullable=False)
     
     # Product snapshot (in case product changes)
     product_name = Column(String(255), nullable=False)
@@ -185,7 +185,7 @@ class CallLog(Base):
     external_call_id = Column(String(255), nullable=True, index=True)
     
     # Call costs
-    cost = Column(Decimal(10, 4), nullable=True)
+    cost = Column(DECIMAL(10, 4), nullable=True)
     
     # Timestamps
     started_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -209,9 +209,9 @@ class Product(Base):
     sku = Column(String(100), nullable=True, index=True)
     
     # Pricing
-    price = Column(Decimal(10, 2), nullable=False)
-    cost_price = Column(Decimal(10, 2), nullable=True)
-    discount_price = Column(Decimal(10, 2), nullable=True)
+    price = Column(DECIMAL(10, 2), nullable=False)
+    cost_price = Column(DECIMAL(10, 2), nullable=True)
+    discount_price = Column(DECIMAL(10, 2), nullable=True)
     
     # Inventory
     track_inventory = Column(Boolean, default=True)
@@ -220,7 +220,7 @@ class Product(Base):
     low_stock_threshold = Column(Integer, default=10)
     
     # Product details
-    weight = Column(Decimal(8, 3), nullable=True)  # kg
+    weight = Column(DECIMAL(8, 3), nullable=True)  # kg
     dimensions = Column(JSON, nullable=True)  # {"length": 10, "width": 5, "height": 3}
     
     # Images and files

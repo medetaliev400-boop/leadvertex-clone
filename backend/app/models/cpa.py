@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, JSON, ForeignKey, Decimal, Index
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, JSON, ForeignKey, DECIMAL, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
@@ -16,11 +16,11 @@ class CPAProgram(Base):
     
     # Payout settings
     payout_type = Column(String(20), default="fixed")  # fixed, percentage
-    payout_amount = Column(Decimal(10, 2), nullable=False)
+    payout_amount = Column(DECIMAL(10, 2), nullable=False)
     payout_currency = Column(String(3), default="RUB")
     
     # Conditions
-    min_payout = Column(Decimal(10, 2), default=1000)
+    min_payout = Column(DECIMAL(10, 2), default=1000)
     hold_period_days = Column(Integer, default=30)
     
     # Payment triggers
@@ -64,18 +64,18 @@ class WebmasterProgram(Base):
     status = Column(String(20), default="pending")  # pending, approved, rejected, blocked
     
     # Personal settings
-    personal_payout = Column(Decimal(10, 2), nullable=True)
+    personal_payout = Column(DECIMAL(10, 2), nullable=True)
     personal_conditions = Column(JSON, default=dict)
     
     # Statistics
     total_clicks = Column(Integer, default=0)
     total_orders = Column(Integer, default=0)
     total_approved = Column(Integer, default=0)
-    total_earnings = Column(Decimal(10, 2), default=0)
+    total_earnings = Column(DECIMAL(10, 2), default=0)
     
     # Balance
-    balance = Column(Decimal(10, 2), default=0)
-    pending_balance = Column(Decimal(10, 2), default=0)
+    balance = Column(DECIMAL(10, 2), default=0)
+    pending_balance = Column(DECIMAL(10, 2), default=0)
     
     applied_at = Column(DateTime(timezone=True), server_default=func.now())
     approved_at = Column(DateTime(timezone=True), nullable=True)
@@ -171,7 +171,7 @@ class Conversion(Base):
     order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
     
     # Payout calculation
-    payout_amount = Column(Decimal(10, 2), nullable=False)
+    payout_amount = Column(DECIMAL(10, 2), nullable=False)
     payout_status = Column(String(20), default="pending")  # pending, approved, rejected, paid
     
     # Approval
@@ -192,7 +192,7 @@ class Payout(Base):
     id = Column(Integer, primary_key=True)
     webmaster_program_id = Column(Integer, ForeignKey("webmaster_programs.id"), nullable=False)
     
-    amount = Column(Decimal(10, 2), nullable=False)
+    amount = Column(DECIMAL(10, 2), nullable=False)
     currency = Column(String(3), default="RUB")
     
     # Payment details
@@ -293,7 +293,7 @@ class RobotCall(Base):
     duration = Column(Integer, nullable=True)  # seconds
     
     # Cost
-    cost = Column(Decimal(10, 4), nullable=True)
+    cost = Column(DECIMAL(10, 4), nullable=True)
     
     # Retry logic
     attempt_number = Column(Integer, default=1)
@@ -356,7 +356,7 @@ class SMSMessage(Base):
     external_id = Column(String(255), nullable=True)
     
     # Cost
-    cost = Column(Decimal(10, 4), nullable=True)
+    cost = Column(DECIMAL(10, 4), nullable=True)
     
     # Delivery
     sent_at = Column(DateTime(timezone=True), nullable=True)

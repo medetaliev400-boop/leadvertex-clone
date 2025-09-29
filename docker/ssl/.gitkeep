@@ -1,0 +1,10 @@
+# SSL certificates should be placed in this directory
+# Example files:
+# - yourdomain.com.crt
+# - yourdomain.com.key
+# - wildcard.yourdomain.com.crt
+# - wildcard.yourdomain.com.key
+
+# Set proper permissions:
+# chmod 644 *.crt
+# chmod 600 *.key

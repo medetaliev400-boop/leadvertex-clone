@@ -4,15 +4,20 @@
 
 ## ⚡ Быстрый запуск
 
+> ⚠️ **Важно**: Перед запуском убедитесь, что все [критические проблемы исправлены](FIXES.md)
+
 ```bash
 # Клонировать репозиторий
 git clone <repository-url>
 cd leadvertex-clone
 
+# Создать SSL сертификаты (для production)
+cd docker/ssl && bash setup-ssl.sh && cd ../..
+
 # Запустить в development режиме
 ./manage.sh start
 
-# Или в production режиме
+# Или в production режиме с SSL
 ENVIRONMENT=production ./manage.sh start
 ```
 
