@@ -1,0 +1,31 @@
+FROM node:18-alpine as builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Remove any existing lock file and install dependencies
+RUN rm -f package-lock.json && npm install --legacy-peer-deps
+
+# Remove problematic .npmrc if exists
+RUN rm -f .npmrc
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Production stage - copy built files to volume
+FROM nginx:alpine
+
+# Copy built files to nginx html directory
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Copy custom nginx config if exists
+COPY nginx.conf /etc/nginx/conf.d/default.conf 2>/dev/null || echo "Using default nginx config"
+
+EXPOSE 80 443
+
+CMD ["nginx", "-g", "daemon off;"]
