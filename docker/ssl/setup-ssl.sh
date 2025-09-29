@@ -4,9 +4,13 @@
 # Замените moonline.pw на ваш реальный домен
 
 DOMAIN="moonline.pw"
-SSL_DIR="/workspace/leadvertex-clone/docker/ssl"
+# Автоматически определяем корневую директорию проекта
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../" && pwd)"
+SSL_DIR="$PROJECT_ROOT/docker/ssl"
 
 echo "🔐 Настройка SSL сертификатов для домена: $DOMAIN"
+echo "📁 Путь для сертификатов: $SSL_DIR"
 
 # Создаем папку для сертификатов если её нет
 mkdir -p "$SSL_DIR"
@@ -83,6 +87,6 @@ echo "   sudo certbot certonly --nginx -d $DOMAIN -d www.$DOMAIN"
 echo "   sudo certbot certonly --nginx -d api.$DOMAIN"  
 echo "   sudo certbot certonly --nginx -d '*.$DOMAIN' -d $DOMAIN"
 echo ""
-echo "📋 После получения реальных сертификатов скопируйте их в docker/ssl/"
-echo "   cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem docker/ssl/$DOMAIN.crt"
-echo "   cp /etc/letsencrypt/live/$DOMAIN/privkey.pem docker/ssl/$DOMAIN.key"
+echo "📋 После получения реальных сертификатов скопируйте их в $SSL_DIR/"
+echo "   cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem $SSL_DIR/$DOMAIN.crt"
+echo "   cp /etc/letsencrypt/live/$DOMAIN/privkey.pem $SSL_DIR/$DOMAIN.key"
