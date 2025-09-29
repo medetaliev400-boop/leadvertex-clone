@@ -502,8 +502,10 @@ const Statistics: React.FC = () => {
         <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
           <Tab label="Конверсии" />
           <Tab label="Операторы" />
+          <Tab label="По выкупаемости" />
           <Tab label="Товары" />
           <Tab label="Звонки" />
+          <Tab label="По робо-прозвону" />
           <Tab label="Вебмастера" />
           <Tab label="Воронка продаж" />
         </Tabs>
@@ -816,8 +818,188 @@ const Statistics: React.FC = () => {
             </Box>
           )}
 
-          {/* Products Tab */}
+          {/* Repurchase Statistics Tab */}
           {activeTab === 2 && (
+            <Box>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Card sx={{ mb: 3 }}>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        Статистика по выкупаемости
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        Анализ скорости доставки, динамики выкупа и работы курьерских служб
+                      </Typography>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Card sx={{ textAlign: 'center', backgroundColor: '#e3f2fd' }}>
+                            <CardContent>
+                              <ShippingIcon color="primary" sx={{ fontSize: 40, mb: 1 }} />
+                              <Typography variant="h5" fontWeight="bold">
+                                1,856
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Отправлено заказов
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Card sx={{ textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                            <CardContent>
+                              <OrdersIcon color="success" sx={{ fontSize: 40, mb: 1 }} />
+                              <Typography variant="h5" fontWeight="bold">
+                                1,542
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Выкуплено
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Card sx={{ textAlign: 'center', backgroundColor: '#fff3e0' }}>
+                            <CardContent>
+                              <ConversionIcon color="warning" sx={{ fontSize: 40, mb: 1 }} />
+                              <Typography variant="h5" fontWeight="bold">
+                                83.1%
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Выкупаемость
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Card sx={{ textAlign: 'center', backgroundColor: '#fce4ec' }}>
+                            <CardContent>
+                              <TrendingDownIcon color="error" sx={{ fontSize: 40, mb: 1 }} />
+                              <Typography variant="h5" fontWeight="bold">
+                                314
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Возвраты
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} md={8}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        Динамика выкупаемости
+                      </Typography>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <ComposedChart data={conversionStats}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="period" />
+                          <YAxis yAxisId="left" />
+                          <YAxis yAxisId="right" orientation="right" />
+                          <Tooltip />
+                          <Legend />
+                          <Bar yAxisId="left" dataKey="shipped" fill="#2196f3" name="Отправлено" />
+                          <Bar yAxisId="left" dataKey="paid" fill="#4caf50" name="Выкуплено" />
+                          <Line yAxisId="right" type="monotone" dataKey="payment_rate" stroke="#ff9800" strokeWidth={3} name="% Выкупаемости" />
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        Сроки доставки
+                      </Typography>
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Средний срок доставки
+                        </Typography>
+                        <Typography variant="h5" fontWeight="bold" color="primary">
+                          3.2 дня
+                        </Typography>
+                      </Box>
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Срок до выкупа
+                        </Typography>
+                        <Typography variant="h5" fontWeight="bold" color="success.main">
+                          5.8 дня
+                        </Typography>
+                      </Box>
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Возвраты (дни)
+                        </Typography>
+                        <Typography variant="h5" fontWeight="bold" color="warning.main">
+                          8.4 дня
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        Анализ по курьерским службам
+                      </Typography>
+                      <TableContainer>
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Служба доставки</TableCell>
+                              <TableCell align="right">Отправлено</TableCell>
+                              <TableCell align="right">Выкуплено</TableCell>
+                              <TableCell align="right">Выкупаемость</TableCell>
+                              <TableCell align="right">Ср. срок доставки</TableCell>
+                              <TableCell align="right">Возвраты</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {[
+                              { name: 'CDEK', sent: 856, paid: 742, rate: 86.7, delivery_days: 2.8, returns: 114 },
+                              { name: 'Почта России', sent: 623, paid: 496, rate: 79.6, delivery_days: 4.2, returns: 127 },
+                              { name: 'Boxberry', sent: 234, paid: 198, rate: 84.6, delivery_days: 3.1, returns: 36 },
+                              { name: 'Новая почта', sent: 143, paid: 106, rate: 74.1, delivery_days: 3.8, returns: 37 }
+                            ].map((service, index) => (
+                              <TableRow key={index}>
+                                <TableCell component="th" scope="row">
+                                  {service.name}
+                                </TableCell>
+                                <TableCell align="right">{service.sent.toLocaleString()}</TableCell>
+                                <TableCell align="right">{service.paid.toLocaleString()}</TableCell>
+                                <TableCell align="right">
+                                  <Chip 
+                                    label={`${service.rate}%`} 
+                                    color={service.rate > 80 ? 'success' : service.rate > 75 ? 'warning' : 'error'}
+                                    size="small"
+                                  />
+                                </TableCell>
+                                <TableCell align="right">{service.delivery_days} дн.</TableCell>
+                                <TableCell align="right">{service.returns}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+
+          {/* Products Tab */}
+          {activeTab === 3 && (
             <Box>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
@@ -872,7 +1054,7 @@ const Statistics: React.FC = () => {
           )}
 
           {/* Call Statistics Tab */}
-          {activeTab === 3 && (
+          {activeTab === 4 && (
             <Box>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
@@ -965,8 +1147,225 @@ const Statistics: React.FC = () => {
             </Box>
           )}
 
+          {/* Robot Calling Statistics Tab */}
+          {activeTab === 5 && (
+            <Box>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Card sx={{ mb: 3 }}>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        Статистика по робо-прозвону
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        Анализ работы автоматического дозвона и предиктивного набора
+                      </Typography>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Card sx={{ textAlign: 'center', backgroundColor: '#e3f2fd' }}>
+                            <CardContent>
+                              <RobotIcon color="primary" sx={{ fontSize: 40, mb: 1 }} />
+                              <Typography variant="h5" fontWeight="bold">
+                                8,456
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Всего звонков робота
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Card sx={{ textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                            <CardContent>
+                              <PhoneIcon color="success" sx={{ fontSize: 40, mb: 1 }} />
+                              <Typography variant="h5" fontWeight="bold">
+                                5,342
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Дозвонились
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Card sx={{ textAlign: 'center', backgroundColor: '#fff3e0' }}>
+                            <CardContent>
+                              <ConversionIcon color="warning" sx={{ fontSize: 40, mb: 1 }} />
+                              <Typography variant="h5" fontWeight="bold">
+                                63.2%
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Процент дозвона
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                          <Card sx={{ textAlign: 'center', backgroundColor: '#fce4ec' }}>
+                            <CardContent>
+                              <TimeIcon color="error" sx={{ fontSize: 40, mb: 1 }} />
+                              <Typography variant="h5" fontWeight="bold">
+                                142 мин.
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Время работы
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} md={8}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        Динамика робо-прозвона по часам
+                      </Typography>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={[
+                          { hour: '09:00', calls: 245, connected: 156, rate: 63.7 },
+                          { hour: '10:00', calls: 298, connected: 189, rate: 63.4 },
+                          { hour: '11:00', calls: 367, connected: 234, rate: 63.8 },
+                          { hour: '12:00', calls: 423, connected: 275, rate: 65.0 },
+                          { hour: '13:00', calls: 389, connected: 241, rate: 62.0 },
+                          { hour: '14:00', calls: 456, connected: 298, rate: 65.4 },
+                          { hour: '15:00', calls: 498, connected: 321, rate: 64.5 },
+                          { hour: '16:00', calls: 445, connected: 278, rate: 62.5 },
+                          { hour: '17:00', calls: 378, connected: 234, rate: 61.9 },
+                          { hour: '18:00', calls: 267, connected: 156, rate: 58.4 }
+                        ]}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="hour" />
+                          <YAxis yAxisId="left" />
+                          <YAxis yAxisId="right" orientation="right" />
+                          <Tooltip />
+                          <Legend />
+                          <Bar yAxisId="left" dataKey="calls" fill="#2196f3" name="Звонки" />
+                          <Bar yAxisId="left" dataKey="connected" fill="#4caf50" name="Дозвонились" />
+                          <Line yAxisId="right" type="monotone" dataKey="rate" stroke="#ff9800" strokeWidth={3} name="% Дозвона" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        Расходы робота
+                      </Typography>
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Потрачено сегодня
+                        </Typography>
+                        <Typography variant="h5" fontWeight="bold" color="primary">
+                          2,847 ₽
+                        </Typography>
+                      </Box>
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Стоимость дозвона
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold" color="warning.main">
+                          0.53 ₽
+                        </Typography>
+                      </Box>
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Баланс робота
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold" color="success.main">
+                          15,642 ₽
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+
+                  <Card sx={{ mt: 2 }}>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        Эффективность
+                      </Typography>
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          Заказы с робо-прозвона
+                        </Typography>
+                        <Typography variant="h5" fontWeight="bold" color="primary">
+                          234
+                        </Typography>
+                      </Box>
+                      <Box sx={{ mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          ROI робота
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold" color="success.main">
+                          340%
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        Детализация робо-прозвона
+                      </Typography>
+                      <TableContainer>
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Период</TableCell>
+                              <TableCell align="right">Звонки</TableCell>
+                              <TableCell align="right">Дозвонились</TableCell>
+                              <TableCell align="right">% Дозвона</TableCell>
+                              <TableCell align="right">Распознано</TableCell>
+                              <TableCell align="right">Стоимость</TableCell>
+                              <TableCell align="right">Заказы</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {[
+                              { period: 'Сегодня', calls: 8456, connected: 5342, rate: 63.2, recognized: 4897, cost: 2847, orders: 234 },
+                              { period: 'Вчера', calls: 7823, connected: 4956, rate: 63.4, recognized: 4523, cost: 2634, orders: 198 },
+                              { period: 'Позавчера', calls: 6789, connected: 4234, rate: 62.4, recognized: 3856, cost: 2289, orders: 167 },
+                              { period: 'За 7 дней', calls: 52340, connected: 32890, rate: 62.8, recognized: 30124, cost: 17653, orders: 1456 }
+                            ].map((stat, index) => (
+                              <TableRow key={index}>
+                                <TableCell component="th" scope="row">
+                                  {stat.period}
+                                </TableCell>
+                                <TableCell align="right">{stat.calls.toLocaleString()}</TableCell>
+                                <TableCell align="right">{stat.connected.toLocaleString()}</TableCell>
+                                <TableCell align="right">
+                                  <Chip 
+                                    label={`${stat.rate}%`} 
+                                    color={stat.rate > 65 ? 'success' : stat.rate > 60 ? 'warning' : 'error'}
+                                    size="small"
+                                  />
+                                </TableCell>
+                                <TableCell align="right">{stat.recognized.toLocaleString()}</TableCell>
+                                <TableCell align="right">{stat.cost.toLocaleString()} ₽</TableCell>
+                                <TableCell align="right">{stat.orders.toLocaleString()}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+
           {/* Webmasters Tab */}
-          {activeTab === 4 && (
+          {activeTab === 6 && (
             <Box>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
@@ -1033,7 +1432,7 @@ const Statistics: React.FC = () => {
           )}
 
           {/* Sales Funnel Tab */}
-          {activeTab === 5 && (
+          {activeTab === 7 && (
             <Box>
               <Grid container spacing={3}>
                 <Grid item xs={12} md={8}>

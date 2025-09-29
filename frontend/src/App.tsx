@@ -9,6 +9,7 @@ import Layout from './components/Layout/Layout';
 import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Orders from './pages/Orders/Orders';
+import OrderStatuses from './pages/Orders/OrderStatuses';
 import Products from './pages/Products/Products';
 import Projects from './pages/Projects/Projects';
 import Statistics from './pages/Statistics/Statistics';
@@ -57,6 +58,7 @@ function App() {
               <Route path="/" element={<Layout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="orders" element={<Orders />} />
+                <Route path="order-statuses" element={<OrderStatuses />} />
                 <Route path="products" element={<Products />} />
                 <Route path="projects" element={<Projects />} />
                 <Route path="statistics" element={<Statistics />} />

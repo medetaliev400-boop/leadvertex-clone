@@ -31,6 +31,7 @@ import {
   Person as PersonIcon,
   Logout as LogoutIcon,
   AccountCircle,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -47,6 +48,7 @@ interface MenuItemType {
 const menuItems: MenuItemType[] = [
   { text: 'Дашборд', icon: <DashboardIcon />, path: '/' },
   { text: 'Заказы', icon: <OrdersIcon />, path: '/orders' },
+  { text: 'Статусы заказов', icon: <SettingsIcon />, path: '/order-statuses', roles: ['admin'] },
   { text: 'Товары', icon: <ProductsIcon />, path: '/products' },
   { text: 'Проекты', icon: <ProjectsIcon />, path: '/projects', roles: ['admin'] },
   { text: 'Статистика', icon: <StatisticsIcon />, path: '/statistics' },
