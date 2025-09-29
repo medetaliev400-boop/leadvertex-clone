@@ -1,0 +1,134 @@
+# Backend Server Docker Compose
+# Файл для сервера с бэкендом
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: leadvertex
+      POSTGRES_USER: leadvertex
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-leadvertex123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leadvertex"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Backend API
+  backend:
+    build: 
+      context: ../backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://leadvertex:${POSTGRES_PASSWORD:-leadvertex123}@postgres/leadvertex
+      - DATABASE_URL_SYNC=postgresql://leadvertex:${POSTGRES_PASSWORD:-leadvertex123}@postgres/leadvertex
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - DEBUG=false
+      - SECRET_KEY=${SECRET_KEY:-leadvertex-super-secret-key-2025}
+      # ВАЖНО: разрешить CORS для фронтенд домена
+      - ALLOWED_ORIGINS=${FRONTEND_DOMAIN:-https://yourdomain.com,https://*.yourdomain.com}
+    volumes:
+      - backend_uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Celery Worker
+  celery-worker:
+    build: 
+      context: ../backend
+      dockerfile: Dockerfile
+    command: celery -A app.celery_app.celery worker --loglevel=info --queues=default,telephony,notifications,automation,analytics --concurrency=4
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://leadvertex:${POSTGRES_PASSWORD:-leadvertex123}@postgres/leadvertex
+      - DATABASE_URL_SYNC=postgresql://leadvertex:${POSTGRES_PASSWORD:-leadvertex123}@postgres/leadvertex
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - DEBUG=false
+    volumes:
+      - backend_uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Celery Beat (Scheduler)
+  celery-beat:
+    build: 
+      context: ../backend
+      dockerfile: Dockerfile
+    command: celery -A app.celery_app.celery beat --loglevel=info --schedule=/tmp/celerybeat-schedule
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://leadvertex:${POSTGRES_PASSWORD:-leadvertex123}@postgres/leadvertex
+      - DATABASE_URL_SYNC=postgresql://leadvertex:${POSTGRES_PASSWORD:-leadvertex123}@postgres/leadvertex
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - DEBUG=false
+    volumes:
+      - celery_beat_data:/tmp
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Nginx для API (опционально)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/backend-nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+      - backend_uploads:/var/www/uploads
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_uploads:
+  celery_beat_data:
+
+networks:
+  default:
+    driver: bridge
