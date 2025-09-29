@@ -1,13 +1,27 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import {
+  ApiResponse,
+  PaginatedResponse,
+  User,
+  Project,
+  Product,
+  Category,
+  Order,
+  OrderStatus,
+  Call,
+  TelephonySettings,
+  AutomationRule,
+  Webmaster,
+  LandingPage,
+  Report,
+  Notification,
+  OrderFilters,
+  ProductFilters,
+  CallFilters,
+  BaseFilters,
+} from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
-interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-}
 
 interface LoginRequest {
   email: string;
@@ -18,73 +32,16 @@ interface LoginResponse {
   access_token: string;
   token_type: string;
   expires_in: number;
-  user: {
-    id: number;
-    email: string;
-    first_name?: string;
-    last_name?: string;
-    role: string;
-    avatar_url?: string;
-    created_at: string;
-  };
+  user: User;
 }
 
-interface Project {
-  id: number;
-  name: string;
-  title?: string;
-  description?: string;
-  subdomain?: string;
-  tariff: string;
-  is_active: boolean;
-  created_at: string;
-  owner_id: number;
-}
-
-interface Order {
-  id: number;
-  project_id: number;
-  customer_name: string;
-  customer_phone: string;
-  customer_email?: string;
-  total_amount: number;
-  status_id: number;
-  status?: {
-    id: number;
-    name: string;
-    color: string;
-    group: string;
-  };
-  operator?: {
-    id: number;
-    email: string;
-    first_name?: string;
-    last_name?: string;
-  };
-  created_at: string;
-  updated_at?: string;
-}
-
-interface Product {
-  id: number;
-  project_id: number;
-  name: string;
-  description?: string;
-  sku?: string;
-  price: number;
-  cost_price?: number;
-  stock_quantity: number;
-  low_stock_threshold: number;
-  is_active: boolean;
-  created_at: string;
-}
-
-interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
+interface RegisterRequest {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  company_name?: string;
 }
 
 class ApiService {
@@ -93,19 +50,31 @@ class ApiService {
   constructor() {
     this.api = axios.create({
       baseURL: API_BASE_URL,
-      timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    // Response interceptor
+    // Request interceptor to add auth token
+    this.api.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // Response interceptor to handle errors
     this.api.interceptors.response.use(
-      (response: AxiosResponse) => response,
+      (response) => response,
       (error) => {
         if (error.response?.status === 401) {
           // Token expired or invalid
-          this.setAuthToken(null);
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           window.location.href = '/login';
@@ -115,262 +84,440 @@ class ApiService {
     );
   }
 
-  setAuthToken(token: string | null) {
-    if (token) {
-      this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else {
-      delete this.api.defaults.headers.common['Authorization'];
-    }
-  }
-
-  // Auth endpoints
-  async login(email: string, password: string): Promise<ApiResponse<LoginResponse>> {
+  // Authentication methods
+  async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
     try {
-      const response = await this.api.post('/api/admin/auth/login-simple', {
-        email,
-        password,
-      });
-      return { success: true, data: response.data };
+      const response: AxiosResponse<LoginResponse> = await this.api.post('/auth/login', credentials);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Login failed',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
-  async getCurrentUser(): Promise<ApiResponse> {
+  async register(userData: RegisterRequest): Promise<ApiResponse<LoginResponse>> {
     try {
-      const response = await this.api.get('/api/admin/auth/me');
-      return { success: true, data: response.data };
+      const response: AxiosResponse<LoginResponse> = await this.api.post('/auth/register', userData);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to get user info',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
-  // Projects endpoints
+  async logout(): Promise<ApiResponse> {
+    try {
+      await this.api.post('/auth/logout');
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  async getCurrentUser(): Promise<ApiResponse<User>> {
+    try {
+      const response: AxiosResponse<User> = await this.api.get('/auth/me');
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  // Project methods
   async getProjects(): Promise<ApiResponse<Project[]>> {
     try {
-      const response = await this.api.get('/api/admin/projects/');
-      return { success: true, data: response.data };
+      const response: AxiosResponse<Project[]> = await this.api.get('/projects');
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to fetch projects',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
-  async createProject(projectData: {
-    name: string;
-    title?: string;
-    description?: string;
-    tariff?: string;
-  }): Promise<ApiResponse<Project>> {
+  async createProject(projectData: Partial<Project>): Promise<ApiResponse<Project>> {
     try {
-      const response = await this.api.post('/api/admin/projects/', projectData);
-      return { success: true, data: response.data };
+      const response: AxiosResponse<Project> = await this.api.post('/projects', projectData);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to create project',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
-  // Orders endpoints
-  async getOrders(params: {
-    project_id: number;
-    page?: number;
-    limit?: number;
-    status_id?: number;
-    search?: string;
-    date_from?: string;
-    date_to?: string;
-  }): Promise<ApiResponse<PaginatedResponse<Order>>> {
+  async updateProject(projectId: number, projectData: Partial<Project>): Promise<ApiResponse<Project>> {
     try {
-      const response = await this.api.get('/api/admin/orders/', { params });
-      return { success: true, data: response.data };
+      const response: AxiosResponse<Project> = await this.api.put(`/projects/${projectId}`, projectData);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to fetch orders',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
-  async getOrder(orderId: number): Promise<ApiResponse<Order>> {
+  async deleteProject(projectId: number): Promise<ApiResponse> {
     try {
-      const response = await this.api.get(`/api/admin/orders/${orderId}`);
-      return { success: true, data: response.data };
+      await this.api.delete(`/projects/${projectId}`);
+      return { success: true };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to fetch order',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
-  async createOrder(
-    projectId: number,
-    orderData: {
-      customer_name: string;
-      customer_phone: string;
-      customer_email?: string;
-      total_amount: number;
-      comment?: string;
-    }
-  ): Promise<ApiResponse<Order>> {
+  // Product methods
+  async getProducts(projectId: number, filters?: ProductFilters): Promise<ApiResponse<PaginatedResponse<Product>>> {
     try {
-      const response = await this.api.post(
-        `/api/admin/orders/?project_id=${projectId}`,
-        orderData
+      const params = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, value.toString());
+          }
+        });
+      }
+      
+      const response: AxiosResponse<PaginatedResponse<Product>> = await this.api.get(
+        `/projects/${projectId}/products?${params.toString()}`
       );
-      return { success: true, data: response.data };
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to create order',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
-  async updateOrder(
-    orderId: number,
-    orderData: Partial<{
-      customer_name: string;
-      customer_phone: string;
-      customer_email: string;
-      total_amount: number;
-      status_id: number;
-      comment: string;
-      internal_comment: string;
-    }>
-  ): Promise<ApiResponse<Order>> {
+  async createProduct(projectId: number, productData: Partial<Product>): Promise<ApiResponse<Product>> {
     try {
-      const response = await this.api.put(`/api/admin/orders/${orderId}`, orderData);
-      return { success: true, data: response.data };
+      const response: AxiosResponse<Product> = await this.api.post(`/projects/${projectId}/products`, productData);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to update order',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
-  async deleteOrder(orderId: number): Promise<ApiResponse> {
+  async updateProduct(productId: number, productData: Partial<Product>): Promise<ApiResponse<Product>> {
     try {
-      const response = await this.api.delete(`/api/admin/orders/${orderId}`);
-      return { success: true, data: response.data };
-    } catch (error: any) {
+      const response: AxiosResponse<Product> = await this.api.put(`/products/${productId}`, productData);
       return {
-        success: false,
-        error: error.response?.data?.detail || 'Failed to delete order',
+        success: true,
+        data: response.data,
       };
-    }
-  }
-
-  // Products endpoints
-  async getProducts(params: {
-    project_id: number;
-    page?: number;
-    limit?: number;
-    search?: string;
-    is_active?: boolean;
-  }): Promise<ApiResponse<PaginatedResponse<Product>>> {
-    try {
-      const response = await this.api.get('/api/admin/products/', { params });
-      return { success: true, data: response.data };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to fetch products',
-      };
-    }
-  }
-
-  async createProduct(
-    projectId: number,
-    productData: {
-      name: string;
-      description?: string;
-      sku?: string;
-      price: number;
-      cost_price?: number;
-      stock_quantity: number;
-      low_stock_threshold?: number;
-    }
-  ): Promise<ApiResponse<Product>> {
-    try {
-      const response = await this.api.post(
-        `/api/admin/products/?project_id=${projectId}`,
-        productData
-      );
-      return { success: true, data: response.data };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.response?.data?.detail || 'Failed to create product',
-      };
-    }
-  }
-
-  async updateProduct(
-    productId: number,
-    productData: Partial<Product>
-  ): Promise<ApiResponse<Product>> {
-    try {
-      const response = await this.api.put(`/api/admin/products/${productId}`, productData);
-      return { success: true, data: response.data };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.response?.data?.detail || 'Failed to update product',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
   async deleteProduct(productId: number): Promise<ApiResponse> {
     try {
-      const response = await this.api.delete(`/api/admin/products/${productId}`);
-      return { success: true, data: response.data };
+      await this.api.delete(`/products/${productId}`);
+      return { success: true };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to delete product',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
-  // Order statuses
-  async getOrderStatuses(projectId: number): Promise<ApiResponse> {
+  // Category methods
+  async getCategories(projectId: number): Promise<ApiResponse<Category[]>> {
     try {
-      const response = await this.api.get(`/api/admin/orders/statuses?project_id=${projectId}`);
-      return { success: true, data: response.data };
+      const response: AxiosResponse<Category[]> = await this.api.get(`/projects/${projectId}/categories`);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to fetch statuses',
+        error: error.response?.data?.detail || error.message,
       };
     }
   }
 
-  // Statistics
-  async getDashboardStats(projectId: number): Promise<ApiResponse> {
+  async createCategory(projectId: number, categoryData: Partial<Category>): Promise<ApiResponse<Category>> {
     try {
-      const response = await this.api.get(`/api/admin/statistics/dashboard?project_id=${projectId}`);
-      return { success: true, data: response.data };
+      const response: AxiosResponse<Category> = await this.api.post(`/projects/${projectId}/categories`, categoryData);
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.detail || 'Failed to fetch statistics',
+        error: error.response?.data?.detail || error.message,
       };
     }
+  }
+
+  // Order methods
+  async getOrders(projectId: number, filters?: OrderFilters): Promise<ApiResponse<PaginatedResponse<Order>>> {
+    try {
+      const params = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, value.toString());
+          }
+        });
+      }
+      
+      const response: AxiosResponse<PaginatedResponse<Order>> = await this.api.get(
+        `/projects/${projectId}/orders?${params.toString()}`
+      );
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  async createOrder(projectId: number, orderData: Partial<Order>): Promise<ApiResponse<Order>> {
+    try {
+      const response: AxiosResponse<Order> = await this.api.post(`/projects/${projectId}/orders`, orderData);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  async updateOrder(orderId: number, orderData: Partial<Order>): Promise<ApiResponse<Order>> {
+    try {
+      const response: AxiosResponse<Order> = await this.api.put(`/orders/${orderId}`, orderData);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  async deleteOrder(orderId: number): Promise<ApiResponse> {
+    try {
+      await this.api.delete(`/orders/${orderId}`);
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  // Order Status methods
+  async getOrderStatuses(projectId: number): Promise<ApiResponse<OrderStatus[]>> {
+    try {
+      const response: AxiosResponse<OrderStatus[]> = await this.api.get(`/projects/${projectId}/statuses`);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  // Call methods
+  async getCalls(projectId: number, filters?: CallFilters): Promise<ApiResponse<PaginatedResponse<Call>>> {
+    try {
+      const params = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, value.toString());
+          }
+        });
+      }
+      
+      const response: AxiosResponse<PaginatedResponse<Call>> = await this.api.get(
+        `/projects/${projectId}/calls?${params.toString()}`
+      );
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  async makeCall(projectId: number, phone: string, orderId?: number): Promise<ApiResponse<Call>> {
+    try {
+      const response: AxiosResponse<Call> = await this.api.post(`/projects/${projectId}/calls`, {
+        phone,
+        order_id: orderId,
+      });
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  // Statistics methods
+  async getDashboardStats(projectId: number): Promise<ApiResponse<any>> {
+    try {
+      const response: AxiosResponse<any> = await this.api.get(`/projects/${projectId}/stats/dashboard`);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  async getConversionStats(projectId: number, filters?: any): Promise<ApiResponse<any>> {
+    try {
+      const params = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, value.toString());
+          }
+        });
+      }
+      
+      const response: AxiosResponse<any> = await this.api.get(
+        `/projects/${projectId}/stats/conversions?${params.toString()}`
+      );
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  async getOperatorStats(projectId: number, filters?: any): Promise<ApiResponse<any>> {
+    try {
+      const params = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, value.toString());
+          }
+        });
+      }
+      
+      const response: AxiosResponse<any> = await this.api.get(
+        `/projects/${projectId}/stats/operators?${params.toString()}`
+      );
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message,
+      };
+    }
+  }
+
+  // Legacy methods for backward compatibility
+  async getStatuses(projectId: number): Promise<ApiResponse<OrderStatus[]>> {
+    return this.getOrderStatuses(projectId);
   }
 }
 
+// Export singleton instance
 export const apiService = new ApiService();
-export type { ApiResponse, Project, Order, Product, PaginatedResponse };
+
+// Export types for use in components
+export type {
+  ApiResponse,
+  PaginatedResponse,
+  User,
+  Project,
+  Product,
+  Category,
+  Order,
+  Call,
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+};

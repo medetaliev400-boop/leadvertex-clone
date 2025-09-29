@@ -26,6 +26,8 @@ import {
   Inventory as ProductsIcon,
   Work as ProjectsIcon,
   Analytics as StatisticsIcon,
+  Phone as TelephonyIcon,
+  Share as CPAIcon,
   Person as PersonIcon,
   Logout as LogoutIcon,
   AccountCircle,
@@ -48,6 +50,8 @@ const menuItems: MenuItemType[] = [
   { text: 'Товары', icon: <ProductsIcon />, path: '/products' },
   { text: 'Проекты', icon: <ProjectsIcon />, path: '/projects', roles: ['admin'] },
   { text: 'Статистика', icon: <StatisticsIcon />, path: '/statistics' },
+  { text: 'Телефония', icon: <TelephonyIcon />, path: '/telephony' },
+  { text: 'CPA сеть', icon: <CPAIcon />, path: '/cpa', roles: ['admin'] },
 ];
 
 const Layout: React.FC = () => {

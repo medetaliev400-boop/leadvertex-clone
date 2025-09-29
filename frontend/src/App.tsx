@@ -12,6 +12,8 @@ import Orders from './pages/Orders/Orders';
 import Products from './pages/Products/Products';
 import Projects from './pages/Projects/Projects';
 import Statistics from './pages/Statistics/Statistics';
+import Telephony from './pages/Telephony/Telephony';
+import CPA from './pages/CPA/CPA';
 import { AuthProvider } from './contexts/AuthContext';
 
 // Create theme
@@ -58,6 +60,8 @@ function App() {
                 <Route path="products" element={<Products />} />
                 <Route path="projects" element={<Projects />} />
                 <Route path="statistics" element={<Statistics />} />
+                <Route path="telephony" element={<Telephony />} />
+                <Route path="cpa" element={<CPA />} />
               </Route>
             </Routes>
           </Router>
@@ -66,5 +70,7 @@ function App() {
     </QueryClientProvider>
   );
 }
+
+export default App;
 
 export default App;
