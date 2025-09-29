@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Скрипт для настройки SSL сертификатов
-# Замените yourdomain.com на ваш реальный домен
+# Замените moonline.pw на ваш реальный домен
 
-DOMAIN="yourdomain.com"
+DOMAIN="moonline.pw"
 SSL_DIR="/workspace/leadvertex-clone/docker/ssl"
 
 echo "🔐 Настройка SSL сертификатов для домена: $DOMAIN"

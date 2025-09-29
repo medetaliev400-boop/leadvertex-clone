@@ -7,14 +7,14 @@ echo "🚀 Начинаем развертывание Frontend сервера..
 echo "📝 Создаем .env файл..."
 cat > .env << EOF
 # Backend URL (адрес вашего Backend сервера)
-BACKEND_URL=https://api.yourdomain.com
+BACKEND_URL=https://api.moonline.pw
 
 # React App API URL для сборки
-REACT_APP_API_URL=https://api.yourdomain.com
+REACT_APP_API_URL=https://api.moonline.pw
 
 # Домены
-MAIN_DOMAIN=yourdomain.com
-WILDCARD_DOMAIN=*.yourdomain.com
+MAIN_DOMAIN=moonline.pw
+WILDCARD_DOMAIN=*.moonline.pw
 EOF
 
 # 2. Создаем директории
@@ -27,11 +27,11 @@ cp deploy/nginx/frontend-nginx.conf nginx/
 
 # Заменяем placeholder домены на реальные
 read -p "Введите ваш основной домен (например: mydomain.com): " DOMAIN
-sed -i "s/yourdomain.com/$DOMAIN/g" nginx/frontend-nginx.conf
+sed -i "s/moonline.pw/$DOMAIN/g" nginx/frontend-nginx.conf
 sed -i "s/\${BACKEND_URL}/https:\/\/api.$DOMAIN/g" nginx/frontend-nginx.conf
 
 # 4. Обновляем Docker Compose
-sed -i "s/yourdomain.com/$DOMAIN/g" deploy/frontend-server.yml
+sed -i "s/moonline.pw/$DOMAIN/g" deploy/frontend-server.yml
 sed -i "s/\${BACKEND_URL}/https:\/\/api.$DOMAIN/g" deploy/frontend-server.yml
 
 # 5. Собираем frontend с правильным API URL

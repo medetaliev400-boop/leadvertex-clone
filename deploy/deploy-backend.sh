@@ -11,10 +11,10 @@ POSTGRES_PASSWORD=your_secure_password_here
 SECRET_KEY=your_super_secret_key_here
 
 # Frontend domain (для CORS)
-FRONTEND_DOMAIN=https://yourdomain.com,https://*.yourdomain.com
+FRONTEND_DOMAIN=https://moonline.pw,https://*.moonline.pw
 
 # Backend URL
-BACKEND_URL=https://api.yourdomain.com
+BACKEND_URL=https://api.moonline.pw
 
 # Flower monitoring
 FLOWER_PASSWORD=admin123
@@ -55,5 +55,5 @@ echo "✅ Backend сервер развернут!"
 echo "📋 Следующие шаги:"
 echo "   1. Настройте SSL сертификаты в ./ssl/"
 echo "   2. Обновите домен в nginx/backend-nginx.conf"
-echo "   3. Настройте DNS: api.yourdomain.com -> IP этого сервера"
+echo "   3. Настройте DNS: api.moonline.pw -> IP этого сервера"
 echo "   4. Перезапустите nginx: docker-compose -f deploy/backend-server.yml restart nginx"

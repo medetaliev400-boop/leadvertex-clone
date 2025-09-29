@@ -87,17 +87,17 @@ docker-compose -f docker-compose.yml --profile production up -d
 
 ```bash
 # 1. Получить реальные SSL сертификаты (Let's Encrypt)
-sudo certbot certonly --nginx -d yourdomain.com -d www.yourdomain.com
-sudo certbot certonly --nginx -d api.yourdomain.com
-sudo certbot certonly --nginx -d '*.yourdomain.com' -d yourdomain.com
+sudo certbot certonly --nginx -d moonline.pw -d www.moonline.pw
+sudo certbot certonly --nginx -d api.moonline.pw
+sudo certbot certonly --nginx -d '*.moonline.pw' -d moonline.pw
 
 # 2. Скопировать сертификаты
-cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem docker/ssl/yourdomain.com.crt
-cp /etc/letsencrypt/live/yourdomain.com/privkey.pem docker/ssl/yourdomain.com.key
-cp /etc/letsencrypt/live/api.yourdomain.com/fullchain.pem docker/ssl/api.yourdomain.com.crt
-cp /etc/letsencrypt/live/api.yourdomain.com/privkey.pem docker/ssl/api.yourdomain.com.key
-cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem docker/ssl/wildcard.yourdomain.com.crt
-cp /etc/letsencrypt/live/yourdomain.com/privkey.pem docker/ssl/wildcard.yourdomain.com.key
+cp /etc/letsencrypt/live/moonline.pw/fullchain.pem docker/ssl/moonline.pw.crt
+cp /etc/letsencrypt/live/moonline.pw/privkey.pem docker/ssl/moonline.pw.key
+cp /etc/letsencrypt/live/api.moonline.pw/fullchain.pem docker/ssl/api.moonline.pw.crt
+cp /etc/letsencrypt/live/api.moonline.pw/privkey.pem docker/ssl/api.moonline.pw.key
+cp /etc/letsencrypt/live/moonline.pw/fullchain.pem docker/ssl/wildcard.moonline.pw.crt
+cp /etc/letsencrypt/live/moonline.pw/privkey.pem docker/ssl/wildcard.moonline.pw.key
 
 # 3. Установить правильные права
 chmod 644 docker/ssl/*.crt
@@ -140,7 +140,7 @@ docker run --rm -v $(pwd)/docker/nginx:/etc/nginx nginx:alpine nginx -t
 docker-compose -f docker-compose.prod.yml run --rm backend python -c "from app.models.cpa import CPAProgram; print('✅ Models import OK')"
 
 # Проверка SSL сертификатов
-openssl x509 -in docker/ssl/yourdomain.com.crt -text -noout
+openssl x509 -in docker/ssl/moonline.pw.crt -text -noout
 
 # Проверка запуска контейнеров
 docker-compose -f docker-compose.prod.yml --profile production up -d

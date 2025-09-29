@@ -17,7 +17,7 @@ services:
       - "443:443"
     environment:
       # URL бэкенд сервера
-      - REACT_APP_API_URL=${BACKEND_URL:-https://api.yourdomain.com}
+      - REACT_APP_API_URL=${BACKEND_URL:-https://api.moonline.pw}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]

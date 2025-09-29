@@ -52,7 +52,7 @@ services:
       - DEBUG=false
       - SECRET_KEY=${SECRET_KEY:-leadvertex-super-secret-key-2025}
       # ВАЖНО: разрешить CORS для фронтенд домена
-      - ALLOWED_ORIGINS=${FRONTEND_DOMAIN:-https://yourdomain.com,https://*.yourdomain.com}
+      - ALLOWED_ORIGINS=${FRONTEND_DOMAIN:-https://moonline.pw,https://*.moonline.pw}
     volumes:
       - backend_uploads:/app/uploads
       - ./logs:/app/logs

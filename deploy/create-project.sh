@@ -12,8 +12,8 @@ fi
 
 PROJECT_NAME="$1"
 SUBDOMAIN="$2"
-DOMAIN=${MAIN_DOMAIN:-"yourdomain.com"}
-BACKEND_URL=${BACKEND_URL:-"https://api.yourdomain.com"}
+DOMAIN=${MAIN_DOMAIN:-"moonline.pw"}
+BACKEND_URL=${BACKEND_URL:-"https://api.moonline.pw"}
 
 echo "📋 Параметры проекта:"
 echo "   Название: $PROJECT_NAME"

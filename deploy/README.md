@@ -6,8 +6,8 @@
 ┌─────────────────────┐    ┌─────────────────────┐
 │   Frontend Server   │    │   Backend Server    │
 │                     │    │                     │
-│ yourdomain.com      │◄──►│ api.yourdomain.com  │
-│ *.yourdomain.com    │    │                     │
+│ moonline.pw      │◄──►│ api.moonline.pw  │
+│ *.moonline.pw    │    │                     │
 │                     │    │ PostgreSQL + Redis  │
 │ Nginx + React       │    │ FastAPI + Celery    │
 └─────────────────────┘    └─────────────────────┘
@@ -54,8 +54,8 @@ nano .env
 ```env
 POSTGRES_PASSWORD=ваш_надежный_пароль
 SECRET_KEY=ваш_супер_секретный_ключ_32_символа
-FRONTEND_DOMAIN=https://yourdomain.com,https://*.yourdomain.com
-BACKEND_URL=https://api.yourdomain.com
+FRONTEND_DOMAIN=https://moonline.pw,https://*.moonline.pw
+BACKEND_URL=https://api.moonline.pw
 DEBUG=false
 ```
 
@@ -81,7 +81,7 @@ chmod +x deploy/deploy-frontend.sh
 ```
 Тип    | Имя              | Значение
 -------|------------------|------------------
-A      | yourdomain.com   | IP_FRONTEND_SERVER
+A      | moonline.pw   | IP_FRONTEND_SERVER
 A      | www              | IP_FRONTEND_SERVER  
 A      | api              | IP_BACKEND_SERVER
 A      | *                | IP_FRONTEND_SERVER (wildcard)
@@ -94,7 +94,7 @@ A      | *                | IP_FRONTEND_SERVER (wildcard)
 
 ### 5. Настройка SSL сертификатов
 
-**5.1 Для Backend (api.yourdomain.com):**
+**5.1 Для Backend (api.moonline.pw):**
 ```bash
 # На backend сервере
 mkdir -p ssl
@@ -103,11 +103,11 @@ mkdir -p ssl
 sudo apt install certbot
 
 # Получение сертификата
-sudo certbot certonly --standalone -d api.yourdomain.com
+sudo certbot certonly --standalone -d api.moonline.pw
 
 # Копирование сертификатов
-sudo cp /etc/letsencrypt/live/api.yourdomain.com/fullchain.pem ssl/api.yourdomain.com.crt
-sudo cp /etc/letsencrypt/live/api.yourdomain.com/privkey.pem ssl/api.yourdomain.com.key
+sudo cp /etc/letsencrypt/live/api.moonline.pw/fullchain.pem ssl/api.moonline.pw.crt
+sudo cp /etc/letsencrypt/live/api.moonline.pw/privkey.pem ssl/api.moonline.pw.key
 sudo chown $USER:$USER ssl/*
 ```
 
@@ -117,13 +117,13 @@ sudo chown $USER:$USER ssl/*
 mkdir -p ssl
 
 # Получение wildcard сертификата (требует DNS validation)
-sudo certbot certonly --manual --preferred-challenges dns -d yourdomain.com -d *.yourdomain.com
+sudo certbot certonly --manual --preferred-challenges dns -d moonline.pw -d *.moonline.pw
 
 # Копирование сертификатов
-sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem ssl/yourdomain.com.crt
-sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem ssl/yourdomain.com.key
-sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem ssl/wildcard.yourdomain.com.crt
-sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem ssl/wildcard.yourdomain.com.key
+sudo cp /etc/letsencrypt/live/moonline.pw/fullchain.pem ssl/moonline.pw.crt
+sudo cp /etc/letsencrypt/live/moonline.pw/privkey.pem ssl/moonline.pw.key
+sudo cp /etc/letsencrypt/live/moonline.pw/fullchain.pem ssl/wildcard.moonline.pw.crt
+sudo cp /etc/letsencrypt/live/moonline.pw/privkey.pem ssl/wildcard.moonline.pw.key
 sudo chown $USER:$USER ssl/*
 ```
 
@@ -166,7 +166,7 @@ class BegetDNSManager:
                         "passwd": self.password,
                         "input_format": "json",
                         "input_data": json.dumps({
-                            "fqdn": f"{subdomain}.yourdomain.com",
+                            "fqdn": f"{subdomain}.moonline.pw",
                             "records": [
                                 {
                                     "type": "A",
@@ -203,13 +203,13 @@ FRONTEND_SERVER_IP=IP_вашего_frontend_сервера
 **7.1 Тестируем основные домены:**
 ```bash
 # Проверяем backend API
-curl https://api.yourdomain.com/health
+curl https://api.moonline.pw/health
 
 # Проверяем frontend
-curl https://yourdomain.com
+curl https://moonline.pw
 
 # Проверяем создание поддомена через API
-curl -X POST "https://api.yourdomain.com/api/admin/projects/1/subdomain" \
+curl -X POST "https://api.moonline.pw/api/admin/projects/1/subdomain" \
   -H "Content-Type: application/json" \
   -d '{"subdomain": "testproject"}'
 ```
@@ -217,7 +217,7 @@ curl -X POST "https://api.yourdomain.com/api/admin/projects/1/subdomain" \
 **7.2 Проверяем поддомен:**
 ```bash
 # Ждем распространения DNS (до 10 минут)
-curl https://testproject.yourdomain.com
+curl https://testproject.moonline.pw
 ```
 
 ### 8. Мониторинг и логи
@@ -236,13 +236,13 @@ docker-compose -f deploy/frontend-server.yml logs -f frontend
 # На backend сервере включить Flower
 docker-compose -f deploy/backend-server.yml --profile monitoring up -d flower
 
-# Доступен на api.yourdomain.com:5555
+# Доступен на api.moonline.pw:5555
 ```
 
 ## 🔧 Troubleshooting
 
 ### Проблема: Поддомен не работает
-1. Проверьте DNS: `nslookup subdomain.yourdomain.com`
+1. Проверьте DNS: `nslookup subdomain.moonline.pw`
 2. Проверьте логи nginx: `docker logs leadvertex_frontend`
 3. Убедитесь, что wildcard запись настроена в DNS
 
@@ -259,9 +259,9 @@ docker-compose -f deploy/backend-server.yml --profile monitoring up -d flower
 
 После выполнения всех шагов у вас будет:
 
-1. **Главная админ-панель:** https://yourdomain.com
-2. **API бэкенд:** https://api.yourdomain.com  
-3. **Автоматические поддомены:** https://project1.yourdomain.com
-4. **Мониторинг:** https://api.yourdomain.com:5555
+1. **Главная админ-панель:** https://moonline.pw
+2. **API бэкенд:** https://api.moonline.pw  
+3. **Автоматические поддомены:** https://project1.moonline.pw
+4. **Мониторинг:** https://api.moonline.pw:5555
 
 Создание нового проекта автоматически создаст поддомен через API Beget!

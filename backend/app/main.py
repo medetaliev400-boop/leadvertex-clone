@@ -50,7 +50,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if settings.DEBUG else ["https://yourdomain.com"],
+    allow_origins=["*"] if settings.DEBUG else ["https://moonline.pw"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -60,7 +60,7 @@ app.add_middleware(
 if not settings.DEBUG:
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts=["yourdomain.com", "*.yourdomain.com"]
+        allowed_hosts=["moonline.pw", "*.moonline.pw"]
     )
 
 # Request timing middleware

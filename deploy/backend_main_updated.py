@@ -52,8 +52,8 @@ app = FastAPI(
 
 # CORS middleware с поддержкой поддоменов
 allowed_origins = [
-    "https://yourdomain.com",
-    "https://www.yourdomain.com",
+    "https://moonline.pw",
+    "https://www.moonline.pw",
 ]
 
 # Добавляем wildcard поддомены, если не в production
@@ -73,7 +73,7 @@ else:
                 return True
             
             # Проверяем поддомены
-            subdomain_pattern = r"https://[a-zA-Z0-9-]+\.yourdomain\.com$"
+            subdomain_pattern = r"https://[a-zA-Z0-9-]+\.moonline\.com$"
             if re.match(subdomain_pattern, origin):
                 return True
                 
@@ -100,10 +100,10 @@ if not settings.DEBUG:
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=[
-            "yourdomain.com", 
-            "*.yourdomain.com",
-            "api.yourdomain.com",
-            "backend.yourdomain.com"
+            "moonline.pw", 
+            "*.moonline.pw",
+            "api.moonline.pw",
+            "backend.moonline.pw"
         ]
     )
 
@@ -229,10 +229,10 @@ async def create_project_subdomain(
         result = {
             "project_id": project_id,
             "subdomain": subdomain,
-            "full_domain": f"{subdomain}.yourdomain.com",
+            "full_domain": f"{subdomain}.moonline.pw",
             "status": "created",
-            "admin_url": f"https://yourdomain.com/projects/{project_id}",
-            "public_url": f"https://{subdomain}.yourdomain.com"
+            "admin_url": f"https://moonline.pw/projects/{project_id}",
+            "public_url": f"https://{subdomain}.moonline.pw"
         }
         
         logger.info(f"Created subdomain {subdomain} for project {project_id}")
