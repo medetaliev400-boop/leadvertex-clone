@@ -55,6 +55,15 @@ class Settings(BaseSettings):
     RUSSIANPOST_TOKEN: Optional[str] = None
     BOXBERRY_TOKEN: Optional[str] = None
     
+    # Beget API Configuration
+    BEGET_LOGIN: Optional[str] = None
+    BEGET_PASSWORD: Optional[str] = None
+    MAIN_DOMAIN: str = "moonline.pw"
+    
+    # Server Configuration
+    FRONTEND_SERVER_IP: str = "206.189.60.238"
+    BACKEND_SERVER_IP: str = "64.225.109.252"
+    
     # Development
     DEBUG: bool = True
     TESTING: bool = False

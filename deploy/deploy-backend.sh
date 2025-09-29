@@ -7,8 +7,8 @@ echo "🚀 Начинаем развертывание Backend сервера...
 echo "📝 Создаем .env файл..."
 cat > .env << EOF
 # Database
-POSTGRES_PASSWORD=your_secure_password_here
-SECRET_KEY=your_super_secret_key_here
+POSTGRES_PASSWORD=Vf9pXy7Kz@3mQw2h
+SECRET_KEY=9bF7kP0rLmQ8dT6zXaC4nE1jGyHvW5sK
 
 # Frontend domain (для CORS)
 FRONTEND_DOMAIN=https://moonline.pw,https://*.moonline.pw
@@ -21,6 +21,15 @@ FLOWER_PASSWORD=admin123
 
 # Debug mode (false для production)
 DEBUG=false
+
+# Beget API Configuration
+BEGET_LOGIN=aex020w5
+BEGET_PASSWORD=46B*bRc4JATXztr
+MAIN_DOMAIN=moonline.pw
+
+# Server Configuration
+FRONTEND_SERVER_IP=206.189.60.238
+BACKEND_SERVER_IP=64.225.109.252
 EOF
 
 # 2. Создаем директории

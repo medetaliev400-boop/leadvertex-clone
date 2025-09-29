@@ -25,8 +25,9 @@ mkdir -p nginx
 echo "📁 Настраиваем nginx..."
 cp deploy/nginx/frontend-nginx.conf nginx/
 
-# Заменяем placeholder домены на реальные
-read -p "Введите ваш основной домен (например: mydomain.com): " DOMAIN
+# Используем предопределенный домен
+DOMAIN=moonline.pw
+echo "Настраиваем для домена: $DOMAIN"
 sed -i "s/moonline.pw/$DOMAIN/g" nginx/frontend-nginx.conf
 sed -i "s/\${BACKEND_URL}/https:\/\/api.$DOMAIN/g" nginx/frontend-nginx.conf
 
