@@ -11,7 +11,10 @@ RUN rm -f package-lock.json && npm install --legacy-peer-deps
 # Copy source code
 COPY . .
 
-# Build the application
+# Remove any npmrc that might interfere
+RUN rm -f .npmrc
+
+# Build the application  
 RUN npm run build
 
 # Production stage

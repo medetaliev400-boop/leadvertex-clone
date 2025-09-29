@@ -230,7 +230,9 @@
 
 # Gatsby files
 **/.cache/
+# Exclude public folders except frontend/public
 **/public
+!frontend/public/
 
 # Vue.js
 **/dist/
@@ -607,6 +609,7 @@
 # Docker
 **/Dockerfile*
 **/.dockerignore
+!frontend/.dockerignore
 **/docker-compose*.yml
 **/.docker/
 
