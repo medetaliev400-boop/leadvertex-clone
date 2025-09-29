@@ -2,14 +2,14 @@
 
 ## 📋 Обзор архитектуры
 
-**Backend сервер** (`64.225.109.252`):
+**Backend сервер** (`68.183.209.116`):
 - PostgreSQL 15
 - Redis 7
 - FastAPI приложение
 - Celery workers
 - Nginx (API proxy)
 
-**Frontend сервер** (`206.189.60.238`):
+**Frontend сервер** (`157.230.100.209`):
 - React приложение
 - Nginx (статика + proxy к API)
 - SSL сертификаты
@@ -18,11 +18,11 @@
 
 ## 🔧 Шаг 1: Подготовка серверов
 
-### Backend сервер (64.225.109.252)
+### Backend сервер (68.183.209.116)
 
 ```bash
 # Подключаемся к серверу
-ssh root@64.225.109.252
+ssh root@68.183.209.116
 
 # Обновляем систему
 apt update && apt upgrade -y
@@ -43,11 +43,11 @@ useradd -m -s /bin/bash leadvertex
 usermod -aG docker leadvertex
 ```
 
-### Frontend сервер (206.189.60.238)
+### Frontend сервер (157.230.100.209)
 
 ```bash
 # Подключаемся к серверу
-ssh root@206.189.60.238
+ssh root@157.230.100.209
 
 # Обновляем систему
 apt update && apt upgrade -y
@@ -95,7 +95,7 @@ git log --oneline -n 3
 ### 3.1. Создание .env файла
 
 ```bash
-# На backend сервере (64.225.109.252)
+# На backend сервере (68.183.209.116)
 cd /opt/leadvertex-clone
 
 # Создаем .env на основе примера
@@ -137,8 +137,8 @@ BEGET_PASSWORD=46B*bRc4JATXztr
 MAIN_DOMAIN=moonline.pw
 
 # Server Configuration
-FRONTEND_SERVER_IP=206.189.60.238
-BACKEND_SERVER_IP=64.225.109.252
+FRONTEND_SERVER_IP=157.230.100.209
+BACKEND_SERVER_IP=68.183.209.116
 FRONTEND_DOMAIN=https://moonline.pw,https://*.moonline.pw
 BACKEND_URL=https://api.moonline.pw
 
@@ -204,7 +204,7 @@ curl -k https://localhost/health
 ### 4.1. Подготовка фронтенда
 
 ```bash
-# На frontend сервере (206.189.60.238)
+# На frontend сервере (157.230.100.209)
 cd /opt/leadvertex-clone
 
 # Создаем .env для фронтенда
@@ -340,14 +340,14 @@ async def setup_dns():
     os.environ['BEGET_LOGIN'] = 'aex020w5'
     os.environ['BEGET_PASSWORD'] = '46B*bRc4JATXztr'
     os.environ['MAIN_DOMAIN'] = 'moonline.pw'
-    os.environ['FRONTEND_SERVER_IP'] = '206.189.60.238'
+    os.environ['FRONTEND_SERVER_IP'] = '157.230.100.209'
     
     dns_manager = BegetDNSManager()
     
     # Создаем основные записи
-    await dns_manager.create_subdomain('', '206.189.60.238')  # moonline.pw
-    await dns_manager.create_subdomain('www', '206.189.60.238')  # www.moonline.pw
-    await dns_manager.create_subdomain('api', '64.225.109.252')  # api.moonline.pw
+    await dns_manager.create_subdomain('', '157.230.100.209')  # moonline.pw
+    await dns_manager.create_subdomain('www', '157.230.100.209')  # www.moonline.pw
+    await dns_manager.create_subdomain('api', '68.183.209.116')  # api.moonline.pw
     
     print("DNS записи созданы!")
 
@@ -364,10 +364,10 @@ python3 setup_dns.py
 
 В панели Beget создайте A-записи:
 ```
-moonline.pw → 206.189.60.238
-www.moonline.pw → 206.189.60.238
-api.moonline.pw → 64.225.109.252
-*.moonline.pw → 206.189.60.238
+moonline.pw → 157.230.100.209
+www.moonline.pw → 157.230.100.209
+api.moonline.pw → 68.183.209.116
+*.moonline.pw → 157.230.100.209
 ```
 
 ---
@@ -452,7 +452,7 @@ free -h
 
 ## 🔄 Автоматизированные скрипты запуска
 
-### Backend (64.225.109.252)
+### Backend (68.183.209.116)
 
 ```bash
 cat > /opt/leadvertex-clone/start-backend.sh << 'EOF'
@@ -497,7 +497,7 @@ EOF
 chmod +x /opt/leadvertex-clone/start-backend.sh
 ```
 
-### Frontend (206.189.60.238)
+### Frontend (157.230.100.209)
 
 ```bash
 cat > /opt/leadvertex-clone/start-frontend.sh << 'EOF'
@@ -598,7 +598,7 @@ chmod +x /opt/leadvertex-clone/start-frontend.sh
 ### На Backend сервере:
 
 ```bash
-ssh root@64.225.109.252
+ssh root@68.183.209.116
 cd /opt/leadvertex-clone
 ./start-backend.sh
 ```
@@ -606,7 +606,7 @@ cd /opt/leadvertex-clone
 ### На Frontend сервере:
 
 ```bash
-ssh root@206.189.60.238
+ssh root@157.230.100.209
 cd /opt/leadvertex-clone
 ./start-frontend.sh
 ```
@@ -634,14 +634,14 @@ echo "📚 API Docs: https://api.moonline.pw/api/docs"
 
 ### Перезапуск Backend:
 ```bash
-ssh root@64.225.109.252
+ssh root@68.183.209.116
 cd /opt/leadvertex-clone
 docker-compose -f docker-compose.prod.yml restart
 ```
 
 ### Перезапуск Frontend:
 ```bash
-ssh root@206.189.60.238
+ssh root@157.230.100.209
 docker restart leadvertex-frontend
 ```
 
