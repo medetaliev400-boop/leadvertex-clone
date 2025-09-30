@@ -757,7 +757,7 @@ const Projects: React.FC = () => {
                         <EditIcon fontSize="small" />
                       </IconButton>
                       <IconButton size="small" color="error">
-                        <Delete fontSize="small" />
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
                   </TableRow>

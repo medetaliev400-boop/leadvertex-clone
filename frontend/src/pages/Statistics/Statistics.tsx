@@ -43,6 +43,8 @@ import {
   Inventory as ProductsIcon,
   Speed as ConversionIcon,
   Schedule as TimeIcon,
+  LocalShipping as ShippingIcon,
+  SmartToy as RobotIcon,
 } from '@mui/icons-material';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
