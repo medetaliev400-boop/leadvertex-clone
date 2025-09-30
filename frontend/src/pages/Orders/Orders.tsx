@@ -128,8 +128,8 @@ const Orders: React.FC = () => {
       const response = await apiService.getOrders(selectedProject, filterParams);
       if (response.success && response.data) {
         const data = response.data as PaginatedResponse<Order>;
-        setOrders(data.items);
-        setTotalPages(data.pages);
+        setOrders(data.data);
+        setTotalPages(data.totalPages);
         setTotalOrders(data.total);
       }
     } catch (error) {
