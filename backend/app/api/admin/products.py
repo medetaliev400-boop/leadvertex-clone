@@ -107,8 +107,8 @@ async def get_product(
 
 @router.post("/", response_model=ProductResponse)
 async def create_product(
-    project_id: int = Query(...),
     product_data: ProductCreate,
+    project_id: int = Query(...),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db)
 ):
