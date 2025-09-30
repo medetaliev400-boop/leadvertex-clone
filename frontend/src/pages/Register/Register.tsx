@@ -86,11 +86,12 @@ const Register: React.FC = () => {
   ];
 
   const handleInputChange = (field: keyof RegistrationFormData) => (
-    event: React.ChangeEvent<HTMLInputElement | { value: unknown }>
+    event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<{ value: unknown }>
   ) => {
-    const value = event.target.type === 'checkbox' 
-      ? (event.target as HTMLInputElement).checked 
-      : event.target.value;
+    const target = event.target as any;
+    const value = target.type === 'checkbox' 
+      ? target.checked 
+      : target.value;
       
     setFormData(prev => ({
       ...prev,
