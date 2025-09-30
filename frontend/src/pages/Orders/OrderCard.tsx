@@ -456,7 +456,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ orderId, onClose }) => {
                             sx={{ width: 100 }}
                           />
                         </TableCell>
-                        <TableCell align="right" fontWeight="bold">
+                        <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                           {(product.quantity * product.price).toLocaleString()} ₽
                         </TableCell>
                         <TableCell>
