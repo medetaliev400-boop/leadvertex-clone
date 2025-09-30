@@ -45,9 +45,13 @@ services:
       dockerfile: Dockerfile.backend
     container_name: leadvertex-backend
     restart: unless-stopped
+    env_file: .env.backend
     environment:
-      - DATABASE_URL=postgresql://leadvertex_user:${POSTGRES_PASSWORD}@db:5432/leadvertex
+      - DATABASE_URL=postgresql+asyncpg://leadvertex_user:${POSTGRES_PASSWORD}@db:5432/leadvertex
+      - DATABASE_URL_SYNC=postgresql://leadvertex_user:${POSTGRES_PASSWORD}@db:5432/leadvertex
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
       - SECRET_KEY=${SECRET_KEY}
       - CORS_ORIGINS=http://157.230.100.209,https://157.230.100.209,https://moonline.pw,https://www.moonline.pw
     ports:
@@ -96,9 +100,12 @@ services:
     container_name: leadvertex-celery-worker
     restart: unless-stopped
     command: celery -A app.celery_app worker -l info
+    env_file: .env.backend
     environment:
-      - DATABASE_URL=postgresql://leadvertex_user:${POSTGRES_PASSWORD}@db:5432/leadvertex
+      - DATABASE_URL_SYNC=postgresql://leadvertex_user:${POSTGRES_PASSWORD}@db:5432/leadvertex
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
       - SECRET_KEY=${SECRET_KEY}
     volumes:
       - media_files:/app/media
@@ -120,9 +127,12 @@ services:
     container_name: leadvertex-celery-beat
     restart: unless-stopped
     command: celery -A app.celery_app beat -l info
+    env_file: .env.backend
     environment:
-      - DATABASE_URL=postgresql://leadvertex_user:${POSTGRES_PASSWORD}@db:5432/leadvertex
+      - DATABASE_URL_SYNC=postgresql://leadvertex_user:${POSTGRES_PASSWORD}@db:5432/leadvertex
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
       - SECRET_KEY=${SECRET_KEY}
     volumes:
       - media_files:/app/media
