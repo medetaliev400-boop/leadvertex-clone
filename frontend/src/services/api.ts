@@ -46,6 +46,7 @@ interface RegisterRequest {
 
 class ApiService {
   private api: AxiosInstance;
+  private token: string | null = null;
 
   constructor() {
     this.api = axios.create({
@@ -58,7 +59,7 @@ class ApiService {
     // Request interceptor to add auth token
     this.api.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('token');
+        const token = this.token || localStorage.getItem('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -75,6 +76,7 @@ class ApiService {
       (error) => {
         if (error.response?.status === 401) {
           // Token expired or invalid
+          this.token = null;
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           window.location.href = '/login';
@@ -82,6 +84,20 @@ class ApiService {
         return Promise.reject(error);
       }
     );
+  }
+
+  // Token management
+  setToken(token: string | null): void {
+    this.token = token;
+    if (token) {
+      localStorage.setItem('token', token);
+    } else {
+      localStorage.removeItem('token');
+    }
+  }
+
+  getToken(): string | null {
+    return this.token || localStorage.getItem('token');
   }
 
   // Authentication methods
