@@ -32,6 +32,7 @@ interface RegistrationFormData {
   position: string;
   industry: string;
   employeeCount: string;
+  role: string;
   agreeToTerms: boolean;
   agreeToNewsletter: boolean;
 }
@@ -51,6 +52,7 @@ const Register: React.FC = () => {
     position: '',
     industry: '',
     employeeCount: '',
+    role: 'operator',
     agreeToTerms: false,
     agreeToNewsletter: true,
   });
@@ -83,6 +85,14 @@ const Register: React.FC = () => {
     '51-100',
     '101-500',
     '500+',
+  ];
+
+  const roles = [
+    { value: 'operator', label: 'Оператор' },
+    { value: 'admin', label: 'Администратор' },
+    { value: 'designer', label: 'Дизайнер' },
+    { value: 'webmaster', label: 'Веб-мастер' },
+    { value: 'representative', label: 'Представитель' },
   ];
 
   const handleInputChange = (field: keyof RegistrationFormData) => (
@@ -158,10 +168,33 @@ const Register: React.FC = () => {
     setLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare data for API
+      const registrationData = {
+        email: formData.email,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        phone: formData.phone || null,
+        role: formData.role,
+        password: formData.password,
+      };
+
+      // Send registration request to API
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(registrationData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Ошибка регистрации');
+      }
+
+      const result = await response.json();
       
-      // For demo purposes, just show success and redirect
+      // Show success and redirect
       setSuccess(true);
       
       setTimeout(() => {
@@ -172,8 +205,8 @@ const Register: React.FC = () => {
         });
       }, 2000);
       
-    } catch (error) {
-      setError('Произошла ошибка при регистрации. Попробуйте снова.');
+    } catch (error: any) {
+      setError(error.message || 'Произошла ошибка при регистрации. Попробуйте снова.');
     } finally {
       setLoading(false);
     }
@@ -325,6 +358,23 @@ const Register: React.FC = () => {
                   disabled={loading}
                   placeholder="+7 (900) 123-45-67"
                 />
+              </Grid>
+              
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Роль</InputLabel>
+                  <Select
+                    value={formData.role}
+                    onChange={handleSelectChange('role')}
+                    disabled={loading}
+                  >
+                    {roles.map((role) => (
+                      <MenuItem key={role.value} value={role.value}>
+                        {role.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
               
               <Grid item xs={12} sm={6}>
