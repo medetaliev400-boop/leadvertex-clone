@@ -631,15 +631,20 @@ const Products: React.FC = () => {
               columns={productColumns}
               loading={loading}
               paginationMode="server"
-              page={page - 1}
-              pageSize={pageSize}
+              paginationModel={{
+                page: page - 1,
+                pageSize: pageSize,
+              }}
               rowCount={totalProducts}
-              onPageChange={(newPage) => setPage(newPage + 1)}
+              onPaginationModelChange={(model) => {
+                setPage(model.page + 1);
+                setPageSize(model.pageSize);
+              }}
               checkboxSelection
-              onSelectionModelChange={(newSelection) => {
+              onRowSelectionModelChange={(newSelection) => {
                 setSelectedProducts(newSelection as number[]);
               }}
-              disableSelectionOnClick
+              disableRowSelectionOnClick
             />
           </Paper>
         </Box>
