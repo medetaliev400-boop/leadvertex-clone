@@ -40,8 +40,8 @@ async def get_order_statuses(
 
 @router.post("/statuses", response_model=OrderStatusResponse)
 async def create_order_status(
-    project_id: int = Query(...),
     status_data: OrderStatusCreate,
+    project_id: int = Query(...),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_db)
 ):

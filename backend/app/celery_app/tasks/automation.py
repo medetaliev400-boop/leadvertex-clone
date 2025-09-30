@@ -25,45 +25,45 @@ class DatabaseTask(Task):
     def run(self, db, *args, **kwargs):
         raise NotImplementedError
 
-@celery_app.task(base=DatabaseTask, bind=True)
-def process_automation_rules(self, db):
+@celery_app.task(bind=True)
+def process_automation_rules(self):
     """Process automation rules for all projects"""
     try:
-        # Get all active automation rules
-        stmt = (
-            select(AutomationRule)
-            .where(AutomationRule.is_active == True)
-            .order_by(AutomationRule.priority.desc())
-        )
-        rules = db.execute(stmt).scalars().all()
-        
-        processed_count = 0
-        
-        for rule in rules:
-            try:
-                processed = process_single_automation_rule(db, rule)
-                processed_count += processed
-                
-                # Update rule execution stats
-                stmt = update(AutomationRule).where(
-                    AutomationRule.id == rule.id
-                ).values(
-                    executions_count=AutomationRule.executions_count + processed,
-                    last_executed_at=func.now()
-                )
-                db.execute(stmt)
-                
-            except Exception as e:
-                logger.error(f"Error processing automation rule {rule.id}: {str(e)}")
-        
-        db.commit()
-        logger.info(f"Processed {processed_count} automation rule executions")
-        
-        return {"processed_rules": len(rules), "executions": processed_count}
+        with SessionLocal() as db:
+            # Get all active automation rules
+            stmt = (
+                select(AutomationRule)
+                .where(AutomationRule.is_active == True)
+                .order_by(AutomationRule.priority.desc())
+            )
+            rules = db.execute(stmt).scalars().all()
+            
+            processed_count = 0
+            
+            for rule in rules:
+                try:
+                    processed = process_single_automation_rule(db, rule)
+                    processed_count += processed
+                    
+                    # Update rule execution stats
+                    stmt = update(AutomationRule).where(
+                        AutomationRule.id == rule.id
+                    ).values(
+                        executions_count=AutomationRule.executions_count + processed,
+                        last_executed_at=func.now()
+                    )
+                    db.execute(stmt)
+                    
+                except Exception as e:
+                    logger.error(f"Error processing automation rule {rule.id}: {str(e)}")
+            
+            db.commit()
+            logger.info(f"Processed {processed_count} automation rule executions")
+            
+            return {"processed_rules": len(rules), "executions": processed_count}
         
     except Exception as e:
         logger.error(f"Error in process_automation_rules: {str(e)}")
-        db.rollback()
         raise
 
 def process_single_automation_rule(db, rule: AutomationRule) -> int:

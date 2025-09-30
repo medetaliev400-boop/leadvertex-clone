@@ -27,58 +27,58 @@ class DatabaseTask(Task):
     def run(self, db, *args, **kwargs):
         raise NotImplementedError
 
-@celery_app.task(base=DatabaseTask, bind=True)
-def send_pending_sms(self, db):
+@celery_app.task(bind=True)
+def send_pending_sms(self):
     """Send pending SMS messages"""
     try:
-        # Get pending SMS messages
-        stmt = (
-            select(SMSMessage)
-            .where(SMSMessage.status == "pending")
-            .order_by(SMSMessage.created_at)
-            .limit(100)  # Process in batches
-        )
-        pending_messages = db.execute(stmt).scalars().all()
-        
-        sent_count = 0
-        failed_count = 0
-        
-        for message in pending_messages:
-            try:
-                # Update status to processing
-                message.status = "processing"
-                db.commit()
-                
-                # Send SMS
-                success = send_sms_message(message)
-                
-                if success:
-                    message.status = "sent"
-                    message.sent_at = datetime.now()
-                    sent_count += 1
-                    logger.info(f"SMS sent successfully to {message.phone_number}")
-                else:
+        with SessionLocal() as db:
+            # Get pending SMS messages
+            stmt = (
+                select(SMSMessage)
+                .where(SMSMessage.status == "pending")
+                .order_by(SMSMessage.created_at)
+                .limit(100)  # Process in batches
+            )
+            pending_messages = db.execute(stmt).scalars().all()
+            
+            sent_count = 0
+            failed_count = 0
+            
+            for message in pending_messages:
+                try:
+                    # Update status to processing
+                    message.status = "processing"
+                    db.commit()
+                    
+                    # Send SMS
+                    success = send_sms_message(message)
+                    
+                    if success:
+                        message.status = "sent"
+                        message.sent_at = datetime.now()
+                        sent_count += 1
+                        logger.info(f"SMS sent successfully to {message.phone_number}")
+                    else:
+                        message.status = "failed"
+                        message.error_message = "Failed to send SMS"
+                        failed_count += 1
+                        logger.error(f"Failed to send SMS to {message.phone_number}")
+                    
+                    db.commit()
+                    
+                except Exception as e:
                     message.status = "failed"
-                    message.error_message = "Failed to send SMS"
+                    message.error_message = str(e)
+                    db.commit()
                     failed_count += 1
-                    logger.error(f"Failed to send SMS to {message.phone_number}")
-                
-                db.commit()
-                
-            except Exception as e:
-                message.status = "failed"
-                message.error_message = str(e)
-                db.commit()
-                failed_count += 1
-                logger.error(f"Error sending SMS to {message.phone_number}: {str(e)}")
-        
-        logger.info(f"SMS batch processed: {sent_count} sent, {failed_count} failed")
-        
-        return {"sent": sent_count, "failed": failed_count}
+                    logger.error(f"Error sending SMS to {message.phone_number}: {str(e)}")
+            
+            logger.info(f"SMS batch processed: {sent_count} sent, {failed_count} failed")
+            
+            return {"sent": sent_count, "failed": failed_count}
         
     except Exception as e:
         logger.error(f"Error in send_pending_sms: {str(e)}")
-        db.rollback()
         raise
 
 def send_sms_message(message: SMSMessage) -> bool:
