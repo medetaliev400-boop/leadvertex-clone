@@ -116,8 +116,7 @@ const Orders: React.FC = () => {
     
     setLoading(true);
     try {
-      const params = {
-        project_id: selectedProject,
+      const filterParams = {
         page,
         limit: pageSize,
         ...filters,
@@ -125,7 +124,7 @@ const Orders: React.FC = () => {
         date_to: filters.date_to?.toISOString(),
       };
 
-      const response = await apiService.getOrders(params);
+      const response = await apiService.getOrders(selectedProject, filterParams);
       if (response.success && response.data) {
         const data = response.data as PaginatedResponse<Order>;
         setOrders(data.items);
