@@ -416,10 +416,10 @@ const Orders: React.FC = () => {
                         </Grid>
 
                         <Grid item xs={12} md={2}>
-                          {order.status && (
+                          {order.status_name && (
                             <Chip
-                              label={order.status.name}
-                              color={getStatusColor(order.status.group)}
+                              label={order.status_name}
+                              color={getStatusColor(order.status_group)}
                               variant="outlined"
                             />
                           )}
