@@ -429,9 +429,9 @@ const Orders: React.FC = () => {
                           <Typography variant="body2" color="text.secondary">
                             {formatDate(order.created_at)}
                           </Typography>
-                          {order.operator && (
+                          {order.assigned_operator_name && (
                             <Typography variant="caption" display="block">
-                              {order.operator.first_name} {order.operator.last_name}
+                              {order.assigned_operator_name}
                             </Typography>
                           )}
                         </Grid>
