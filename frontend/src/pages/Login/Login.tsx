@@ -25,7 +25,7 @@ const Login: React.FC = () => {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/project-selection" replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +43,7 @@ const Login: React.FC = () => {
       const success = await login(email, password);
       
       if (success) {
-        navigate('/');
+        navigate('/project-selection');
       } else {
         setError('Неверный email или пароль');
       }

@@ -6,7 +6,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Import components
 import Layout from './components/Layout/Layout';
+import Landing from './pages/Landing/Landing';
 import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import ProjectSelection from './pages/ProjectSelection/ProjectSelection';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Orders from './pages/Orders/Orders';
 import OrderStatuses from './pages/Orders/OrderStatuses';
@@ -16,6 +19,7 @@ import Statistics from './pages/Statistics/Statistics';
 import Telephony from './pages/Telephony/Telephony';
 import CPA from './pages/CPA/CPA';
 import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 // Create theme
 const theme = createTheme({
@@ -54,8 +58,30 @@ function App() {
         <AuthProvider>
           <Router>
             <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Layout />}>
+              <Route path="/register" element={<Register />} />
+              
+              {/* Protected routes - Project Selection */}
+              <Route 
+                path="/project-selection" 
+                element={
+                  <ProtectedRoute>
+                    <ProjectSelection />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Protected routes - Main Application */}
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
                 <Route index element={<Dashboard />} />
                 <Route path="orders" element={<Orders />} />
                 <Route path="order-statuses" element={<OrderStatuses />} />
