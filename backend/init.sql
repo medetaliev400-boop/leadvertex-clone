@@ -1,11 +1,15 @@
 -- PostgreSQL initialization script for LeadVertex
 -- This script will be executed when the database container starts for the first time
 
--- Create database if it doesn't exist (already created by POSTGRES_DB env var)
--- CREATE DATABASE IF NOT EXISTS leadvertex;
-
--- Create user if it doesn't exist (already created by POSTGRES_USER env var)
--- CREATE USER IF NOT EXISTS leadvertex_user WITH PASSWORD 'password';
+-- Create user if it doesn't exist
+DO
+$do$
+BEGIN
+   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'leadvertex_user') THEN
+      CREATE USER leadvertex_user WITH PASSWORD 'Vf9pXy7Kz@3mQw2h';
+   END IF;
+END
+$do$;
 
 -- Grant privileges
 GRANT ALL PRIVILEGES ON DATABASE leadvertex TO leadvertex_user;
@@ -23,4 +27,4 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Log initialization complete
-\echo 'PostgreSQL initialization completed for LeadVertex';
+\echo 'PostgreSQL initialization completed for LeadVertex with user leadvertex_user';
