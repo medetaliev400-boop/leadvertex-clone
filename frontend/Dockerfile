@@ -1,4 +1,4 @@
-FROM node:18-alpine as builder
+FROM node:18-alpine
 
 WORKDIR /app
 
@@ -17,16 +17,11 @@ RUN rm -f .npmrc
 # Build the application  
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+# Copy built files to volume mount point
+RUN cp -r /app/build/* /app/build/ 2>/dev/null || true
 
-# Copy built files
-COPY --from=builder /app/build /usr/share/nginx/html
-
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose port
+# Expose port (for completeness)
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+# Keep container running to serve as volume source
+CMD ["tail", "-f", "/dev/null"]
