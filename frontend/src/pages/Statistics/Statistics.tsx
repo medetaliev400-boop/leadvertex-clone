@@ -363,7 +363,7 @@ const Statistics: React.FC = () => {
       if (response.success && response.data && Array.isArray(response.data)) {
         setProjects(response.data);
         if (response.data.length > 0) {
-          setFilters(prev => ({ ...prev, project_id: response.data[0].id }));
+          setFilters(prev => ({ ...prev, project_id: response.data![0].id }));
         }
       }
     } catch (error) {
