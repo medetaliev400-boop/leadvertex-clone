@@ -284,7 +284,7 @@ const CPA: React.FC = () => {
   const loadProjects = async () => {
     try {
       const response = await api.getProjects();
-      if (response.success && response.data) {
+      if (response.success && response.data && Array.isArray(response.data)) {
         setProjects(response.data);
         if (response.data.length > 0) {
           setSelectedProject(response.data[0].id);
