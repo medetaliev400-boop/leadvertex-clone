@@ -414,7 +414,7 @@ def replace_template_variables(template: str, order: Order) -> str:
     return result
 
 @celery_app.task(base=DatabaseTask, bind=True)
-def auto_assign_orders(self, db):
+def auto_assign_orders(self):
     """Automatically assign new orders to operators"""
     try:
         # Get unassigned orders
@@ -425,7 +425,7 @@ def auto_assign_orders(self, db):
             )
         ).options(selectinload(Order.project))
         
-        orders = db.execute(stmt).scalars().all()
+        orders = self.db.execute(stmt).scalars().all()
         assigned_count = 0
         
         for order in orders:
@@ -441,14 +441,14 @@ def auto_assign_orders(self, db):
                     )
                 )
             )
-            operators = db.execute(stmt).scalars().all()
+            operators = self.db.execute(stmt).scalars().all()
             
             if not operators:
                 continue
             
             # Simple round-robin assignment
             # TODO: Implement more sophisticated load balancing
-            operator = min(operators, key=lambda op: get_operator_current_load(db, op.id))
+            operator = min(operators, key=lambda op: get_operator_current_load(self.db, op.id))
             
             # Check working hours
             if order.city:
@@ -461,7 +461,7 @@ def auto_assign_orders(self, db):
                 operator_id=operator.id,
                 updated_at=func.now()
             )
-            db.execute(stmt)
+            self.db.execute(stmt)
             
             # Add to history
             history = OrderHistory(
@@ -470,18 +470,18 @@ def auto_assign_orders(self, db):
                 new_value=str(operator.id),
                 comment="Automatically assigned to operator"
             )
-            db.add(history)
+            self.db.add(history)
             
             assigned_count += 1
         
-        db.commit()
+        self.db.commit()
         logger.info(f"Auto-assigned {assigned_count} orders")
         
         return {"assigned_orders": assigned_count}
         
     except Exception as e:
         logger.error(f"Error in auto_assign_orders: {str(e)}")
-        db.rollback()
+        self.db.rollback()
         raise
 
 def get_operator_current_load(db, operator_id: int) -> int:
@@ -499,7 +499,7 @@ def get_operator_current_load(db, operator_id: int) -> int:
     return db.execute(stmt).scalar() or 0
 
 @celery_app.task(base=DatabaseTask, bind=True)
-def update_shipping_statuses(self, db):
+def update_shipping_statuses(self):
     """Update order statuses based on shipping information"""
     try:
         # Get orders with tracking numbers in shipped status
@@ -514,7 +514,7 @@ def update_shipping_statuses(self, db):
                 )
             )
         )
-        orders = db.execute(stmt).scalars().all()
+        orders = self.db.execute(stmt).scalars().all()
         
         updated_count = 0
         
@@ -537,7 +537,7 @@ def update_shipping_statuses(self, db):
                     )
                     .limit(1)
                 )
-                delivered_status = db.execute(stmt).scalar_one_or_none()
+                delivered_status = self.db.execute(stmt).scalar_one_or_none()
                 
                 if delivered_status and order.status_id != delivered_status.id:
                     # Update status
@@ -546,7 +546,7 @@ def update_shipping_statuses(self, db):
                         status_updated_at=func.now(),
                         updated_at=func.now()
                     )
-                    db.execute(stmt)
+                    self.db.execute(stmt)
                     
                     # Add to history
                     history = OrderHistory(
@@ -556,18 +556,18 @@ def update_shipping_statuses(self, db):
                         new_value=str(delivered_status.id),
                         comment="Status updated based on shipping information"
                     )
-                    db.add(history)
+                    self.db.add(history)
                     
                     updated_count += 1
         
-        db.commit()
+        self.db.commit()
         logger.info(f"Updated {updated_count} shipping statuses")
         
         return {"updated_orders": updated_count}
         
     except Exception as e:
         logger.error(f"Error in update_shipping_statuses: {str(e)}")
-        db.rollback()
+        self.db.rollback()
         raise
 
 # Make tasks available for import

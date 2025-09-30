@@ -184,12 +184,12 @@ def send_sms_via_twilio(message: SMSMessage) -> bool:
         return False
 
 @celery_app.task(base=DatabaseTask, bind=True)
-def check_low_stock(self, db):
+def check_low_stock(self):
     """Check for low stock products and send alerts"""
     try:
         # Get all projects
         stmt = select(Project).where(Project.is_active == True)
-        projects = db.execute(stmt).scalars().all()
+        projects = self.db.execute(stmt).scalars().all()
         
         alerts_sent = 0
         
@@ -206,12 +206,12 @@ def check_low_stock(self, db):
                     )
                 )
             )
-            low_stock_products = db.execute(stmt).scalars().all()
+            low_stock_products = self.db.execute(stmt).scalars().all()
             
             if low_stock_products:
                 # Get project owner email
                 stmt = select(User).where(User.id == project.owner_id)
-                owner = db.execute(stmt).scalar_one_or_none()
+                owner = self.db.execute(stmt).scalar_one_or_none()
                 
                 if owner and owner.email:
                     # Prepare product data
@@ -243,7 +243,7 @@ def check_low_stock(self, db):
         raise
 
 @celery_app.task(base=DatabaseTask, bind=True)
-def send_daily_summary_email(self, db):
+def send_daily_summary_email(self):
     """Send daily summary emails to project owners"""
     try:
         # Get all active projects
@@ -252,7 +252,7 @@ def send_daily_summary_email(self, db):
             .options(selectinload(Project.owner))
             .where(Project.is_active == True)
         )
-        projects = db.execute(stmt).scalars().all()
+        projects = self.db.execute(stmt).scalars().all()
         
         emails_sent = 0
         today = datetime.now().date()
@@ -262,7 +262,7 @@ def send_daily_summary_email(self, db):
                 continue
             
             # Get today's statistics
-            summary_data = get_daily_summary_data(db, project.id, today)
+            summary_data = get_daily_summary_data(self.db, project.id, today)
             
             # Send summary email
             success = send_daily_summary_email(
@@ -394,7 +394,7 @@ def send_order_notification_email(email: str, order_data: Dict[str, Any], templa
         return False
 
 @celery_app.task(base=DatabaseTask, bind=True)
-def process_sms_delivery_reports(self, db):
+def process_sms_delivery_reports(self):
     """Process SMS delivery reports from providers"""
     try:
         # Get sent messages without delivery confirmation
@@ -409,7 +409,7 @@ def process_sms_delivery_reports(self, db):
                 )
             )
         )
-        messages = db.execute(stmt).scalars().all()
+        messages = self.db.execute(stmt).scalars().all()
         
         updated_count = 0
         
@@ -432,14 +432,14 @@ def process_sms_delivery_reports(self, db):
                 message.status = "failed"
                 message.error_message = "Delivery failed"
         
-        db.commit()
+        self.db.commit()
         logger.info(f"Updated delivery status for {updated_count} SMS messages")
         
         return {"updated": updated_count}
         
     except Exception as e:
         logger.error(f"Error in process_sms_delivery_reports: {str(e)}")
-        db.rollback()
+        self.db.rollback()
         raise
 
 def check_sms_ru_delivery_status(external_id: str) -> str:
