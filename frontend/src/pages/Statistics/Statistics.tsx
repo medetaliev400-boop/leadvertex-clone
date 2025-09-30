@@ -360,7 +360,7 @@ const Statistics: React.FC = () => {
   const loadProjects = async () => {
     try {
       const response = await apiService.getProjects();
-      if (response.success && response.data) {
+      if (response.success && response.data && Array.isArray(response.data)) {
         setProjects(response.data);
         if (response.data.length > 0) {
           setFilters(prev => ({ ...prev, project_id: response.data[0].id }));
