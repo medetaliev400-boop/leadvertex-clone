@@ -58,7 +58,8 @@ import {
   Build as BuildIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import { apiService, Project, User, ProjectSettings } from '../../services/api';
+import { apiService } from '../../services/api';
+import { Project, User, ProjectSettings } from '../../types';
 
 interface ProjectFormData {
   name: string;
