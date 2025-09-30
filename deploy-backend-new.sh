@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Скрипт для развертывания Backend на сервере 157.230.27.200
+# Скрипт для развертывания Backend на сервере 159.89.108.100
 # Автор: MiniMax Agent
 
 set -e  # Останавливать выполнение при ошибке
 
-echo "🚀 Начинаем развертывание Backend на сервере 157.230.27.200"
+echo "🚀 Начинаем развертывание Backend на сервере 159.89.108.100"
 
 # Проверяем что мы в правильной директории
 if [ ! -f "docker-compose.backend.yml" ]; then
@@ -46,13 +46,13 @@ BEGET_PASSWORD=46B*bRc4JATXztr
 MAIN_DOMAIN=moonline.pw
 
 # Server Configuration
-FRONTEND_SERVER_IP=164.90.219.122
-BACKEND_SERVER_IP=157.230.27.200
+FRONTEND_SERVER_IP=139.59.158.109
+BACKEND_SERVER_IP=159.89.108.100
 FRONTEND_DOMAIN=https://moonline.pw,https://*.moonline.pw
 BACKEND_URL=https://api.moonline.pw
 
 # CORS Settings
-CORS_ORIGINS=["https://moonline.pw","https://www.moonline.pw","https://*.moonline.pw","http://164.90.219.122","https://164.90.219.122"]
+CORS_ORIGINS=["https://moonline.pw","https://www.moonline.pw","https://*.moonline.pw","http://139.59.158.109","https://139.59.158.109"]
 
 # Flower Monitoring
 FLOWER_PASSWORD=admin123
@@ -136,5 +136,5 @@ echo "curl http://localhost:8000/health                    # Тест API"
 echo "curl -k https://localhost/health                     # Тест Nginx"
 echo ""
 echo "🌐 API доступен на:"
-echo "- http://157.230.27.200:8000/docs (Swagger)"
-echo "- http://157.230.27.200:8000/health (Health check)"
+echo "- http://159.89.108.100:8000/docs (Swagger)"
+echo "- http://159.89.108.100:8000/health (Health check)"

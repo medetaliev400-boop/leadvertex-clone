@@ -48,7 +48,7 @@ services:
     restart: unless-stopped
     env_file: .env.backend
     environment:
-      - CORS_ORIGINS=http://164.90.219.122,https://164.90.219.122,https://moonline.pw,https://www.moonline.pw
+      - CORS_ORIGINS=http://139.59.158.109,https://139.59.158.109,https://moonline.pw,https://www.moonline.pw
     ports:
       - "8000:8000"
     volumes:

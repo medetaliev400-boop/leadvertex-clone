@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Скрипт для развертывания Frontend на сервере 164.90.219.122
+# Скрипт для развертывания Frontend на сервере 139.59.158.109
 # Автор: MiniMax Agent
 
 set -e  # Останавливать выполнение при ошибке
 
-echo "🚀 Начинаем развертывание Frontend на сервере 164.90.219.122"
+echo "🚀 Начинаем развертывание Frontend на сервере 139.59.158.109"
 
 # Проверяем что мы в правильной директории
 if [ ! -d "frontend" ]; then
@@ -17,12 +17,12 @@ fi
 echo "📋 Шаг 1: Создание .env файла для фронтенда..."
 cat > .env << 'EOF'
 # Backend Configuration
-REACT_APP_API_URL=https://157.230.27.200:8000
-BACKEND_URL=https://157.230.27.200:8000
+REACT_APP_API_URL=https://159.89.108.100:8000
+BACKEND_URL=https://159.89.108.100:8000
 
 # Server Configuration
-FRONTEND_SERVER_IP=164.90.219.122
-BACKEND_SERVER_IP=157.230.27.200
+FRONTEND_SERVER_IP=139.59.158.109
+BACKEND_SERVER_IP=159.89.108.100
 
 # Domain Configuration
 MAIN_DOMAIN=moonline.pw
@@ -37,7 +37,7 @@ echo "✅ .env файл создан"
 
 echo "📋 Шаг 2: Создание .env файла для frontend сборки..."
 cat > frontend/.env << 'EOF'
-REACT_APP_API_URL=https://157.230.27.200:8000
+REACT_APP_API_URL=https://159.89.108.100:8000
 GENERATE_SOURCEMAP=false
 EOF
 
@@ -77,7 +77,7 @@ services:
       dockerfile: Dockerfile
     container_name: leadvertex-frontend
     environment:
-      - REACT_APP_API_URL=https://157.230.27.200:8000
+      - REACT_APP_API_URL=https://159.89.108.100:8000
     volumes:
       - frontend_build:/app/build
     depends_on:
@@ -107,7 +107,7 @@ mkdir -p docker/nginx
 cat > docker/nginx/frontend.conf << 'EOF'
 # Upstream backend API
 upstream backend_api {
-    server 157.230.27.200:8000;
+    server 159.89.108.100:8000;
     keepalive 32;
 }
 
@@ -115,7 +115,7 @@ upstream backend_api {
 server {
     listen 80;
     listen 443 ssl http2;
-    server_name moonline.pw www.moonline.pw 164.90.219.122;
+    server_name moonline.pw www.moonline.pw 139.59.158.109;
 
     # SSL configuration
     ssl_certificate /etc/nginx/ssl/moonline.pw.crt;
@@ -233,7 +233,7 @@ server {
 # HTTP to HTTPS redirect
 server {
     listen 80;
-    server_name moonline.pw www.moonline.pw *.moonline.pw 164.90.219.122;
+    server_name moonline.pw www.moonline.pw *.moonline.pw 139.59.158.109;
     return 301 https://$server_name$request_uri;
 }
 EOF
@@ -286,6 +286,6 @@ echo "curl http://localhost/health                          # Тест Frontend"
 echo "curl -k https://localhost/api/health                  # Тест API proxy"
 echo ""
 echo "🌐 Frontend доступен на:"
-echo "- http://164.90.219.122/ (HTTP)"
-echo "- https://164.90.219.122/ (HTTPS)"
+echo "- http://139.59.158.109/ (HTTP)"
+echo "- https://139.59.158.109/ (HTTPS)"
 echo "- https://moonline.pw/ (после настройки DNS)"

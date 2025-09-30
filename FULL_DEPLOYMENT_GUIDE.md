@@ -2,13 +2,13 @@
 
 ## 📋 Архитектура системы
 
-**Frontend сервер**: `164.90.219.122`
+**Frontend сервер**: `139.59.158.109`
 - React приложение
 - Nginx (статика + reverse proxy)
 - SSL сертификаты
 - Порты: 80, 443
 
-**Backend сервер**: `157.230.27.200`
+**Backend сервер**: `159.89.108.100`
 - FastAPI приложение (порт 8000)
 - PostgreSQL 15 база данных (порт 5432)
 - Redis кеш (порт 6379)
@@ -20,11 +20,11 @@
 
 ## 🔧 Шаг 1: Подготовка серверов
 
-### 1.1. Подготовка Backend сервера (157.230.27.200)
+### 1.1. Подготовка Backend сервера (159.89.108.100)
 
 ```bash
 # Подключаемся к backend серверу
-ssh root@157.230.27.200
+ssh root@159.89.108.100
 
 # Обновляем систему
 apt update && apt upgrade -y
@@ -57,11 +57,11 @@ mkdir -p /opt
 cd /opt
 ```
 
-### 1.2. Подготовка Frontend сервера (164.90.219.122)
+### 1.2. Подготовка Frontend сервера (139.59.158.109)
 
 ```bash
 # Подключаемся к frontend серверу
-ssh root@164.90.219.122
+ssh root@139.59.158.109
 
 # Обновляем систему
 apt update && apt upgrade -y
@@ -118,7 +118,7 @@ git status
 
 ---
 
-## 🗄️ Шаг 3: Развертывание Backend сервера (157.230.27.200)
+## 🗄️ Шаг 3: Развертывание Backend сервера (159.89.108.100)
 
 ### 3.1. Создание .env файла
 
@@ -158,13 +158,13 @@ BEGET_PASSWORD=46B*bRc4JATXztr
 MAIN_DOMAIN=moonline.pw
 
 # Server Configuration
-FRONTEND_SERVER_IP=164.90.219.122
-BACKEND_SERVER_IP=157.230.27.200
+FRONTEND_SERVER_IP=139.59.158.109
+BACKEND_SERVER_IP=159.89.108.100
 FRONTEND_DOMAIN=https://moonline.pw,https://*.moonline.pw
 BACKEND_URL=https://api.moonline.pw
 
 # CORS Settings
-CORS_ORIGINS=["https://moonline.pw","https://www.moonline.pw","https://*.moonline.pw","http://164.90.219.122","https://164.90.219.122"]
+CORS_ORIGINS=["https://moonline.pw","https://www.moonline.pw","https://*.moonline.pw","http://139.59.158.109","https://139.59.158.109"]
 
 # Flower Monitoring
 FLOWER_PASSWORD=admin123
@@ -211,13 +211,13 @@ cd /opt/leadvertex-clone
 
 ```bash
 # Обновляем nginx конфигурацию для нового backend IP
-sed -i 's/68\.183\.209\.116/157.230.27.200/g' docker/nginx/conf.d/default.conf
+sed -i 's/68\.183\.209\.116/159.89.108.100/g' docker/nginx/conf.d/default.conf
 
 # Обновляем docker-compose для нового backend IP
-sed -i 's/68\.183\.209\.116/157.230.27.200/g' docker-compose.backend.yml
+sed -i 's/68\.183\.209\.116/159.89.108.100/g' docker-compose.backend.yml
 
 # Проверяем изменения
-grep "157.230.27.200" docker/nginx/conf.d/default.conf docker-compose.backend.yml
+grep "159.89.108.100" docker/nginx/conf.d/default.conf docker-compose.backend.yml
 ```
 
 ### 3.4. Запуск Backend системы
@@ -273,7 +273,7 @@ echo "✅ Redis connection successful"
 
 ---
 
-## 🎨 Шаг 4: Развертывание Frontend сервера (164.90.219.122)
+## 🎨 Шаг 4: Развертывание Frontend сервера (139.59.158.109)
 
 ### 4.1. Создание .env файла
 
@@ -285,11 +285,11 @@ cd /opt/leadvertex-clone
 cat > .env << 'EOF'
 # Backend Configuration
 REACT_APP_API_URL=https://api.moonline.pw
-BACKEND_URL=https://157.230.27.200:8000
+BACKEND_URL=https://159.89.108.100:8000
 
 # Server Configuration
-FRONTEND_SERVER_IP=164.90.219.122
-BACKEND_SERVER_IP=157.230.27.200
+FRONTEND_SERVER_IP=139.59.158.109
+BACKEND_SERVER_IP=159.89.108.100
 
 # Domain Configuration
 MAIN_DOMAIN=moonline.pw
@@ -343,7 +343,7 @@ services:
       dockerfile: Dockerfile
     container_name: leadvertex-frontend
     environment:
-      - REACT_APP_API_URL=https://157.230.27.200:8000
+      - REACT_APP_API_URL=https://159.89.108.100:8000
     volumes:
       - frontend_build:/app/build
     depends_on:
@@ -376,7 +376,7 @@ mkdir -p docker/nginx
 cat > docker/nginx/frontend.conf << 'EOF'
 # Upstream backend API
 upstream backend_api {
-    server 157.230.27.200:8000;
+    server 159.89.108.100:8000;
     keepalive 32;
 }
 
@@ -384,7 +384,7 @@ upstream backend_api {
 server {
     listen 80;
     listen 443 ssl http2;
-    server_name moonline.pw www.moonline.pw 164.90.219.122;
+    server_name moonline.pw www.moonline.pw 139.59.158.109;
 
     # SSL configuration
     ssl_certificate /etc/nginx/ssl/moonline.pw.crt;
@@ -502,7 +502,7 @@ server {
 # HTTP to HTTPS redirect
 server {
     listen 80;
-    server_name moonline.pw www.moonline.pw *.moonline.pw 164.90.219.122;
+    server_name moonline.pw www.moonline.pw *.moonline.pw 139.59.158.109;
     return 301 https://$server_name$request_uri;
 }
 EOF
@@ -512,12 +512,12 @@ EOF
 
 ```bash
 # Обновляем API URL в package.json и других конфигах
-sed -i 's/68\.183\.209\.116/157.230.27.200/g' frontend/package.json
-sed -i 's/157\.230\.100\.209/164.90.219.122/g' frontend/package.json
+sed -i 's/68\.183\.209\.116/159.89.108.100/g' frontend/package.json
+sed -i 's/157\.230\.100\.209/139.59.158.109/g' frontend/package.json
 
 # Создаем .env для frontend сборки
 cat > frontend/.env << 'EOF'
-REACT_APP_API_URL=https://157.230.27.200:8000
+REACT_APP_API_URL=https://159.89.108.100:8000
 GENERATE_SOURCEMAP=false
 EOF
 ```
@@ -564,10 +564,10 @@ echo "API proxy check completed"
 
 ```dns
 # A записи
-moonline.pw         A    164.90.219.122
-www.moonline.pw     A    164.90.219.122
-api.moonline.pw     A    157.230.27.200
-*.moonline.pw       A    164.90.219.122
+moonline.pw         A    139.59.158.109
+www.moonline.pw     A    139.59.158.109
+api.moonline.pw     A    159.89.108.100
+*.moonline.pw       A    139.59.158.109
 
 # CNAME записи (альтернативно)
 www                CNAME moonline.pw
@@ -578,11 +578,11 @@ api                CNAME moonline.pw
 
 ```bash
 # Проверяем backend API
-curl -f http://157.230.27.200:8000/health
+curl -f http://159.89.108.100:8000/health
 curl -f https://api.moonline.pw/health
 
 # Проверяем frontend
-curl -f http://164.90.219.122/health
+curl -f http://139.59.158.109/health
 curl -f https://moonline.pw/health
 
 # Проверяем интеграцию frontend -> backend
@@ -593,7 +593,7 @@ curl -f https://moonline.pw/api/health
 
 ## 🔧 Управление системой
 
-### Backend сервер (157.230.27.200)
+### Backend сервер (159.89.108.100)
 
 ```bash
 # Перезапуск всех сервисов
@@ -626,7 +626,7 @@ docker-compose -f docker-compose.backend.yml restart backend
 docker-compose -f docker-compose.backend.yml exec backend alembic upgrade head
 ```
 
-### Frontend сервер (164.90.219.122)
+### Frontend сервер (139.59.158.109)
 
 ```bash
 # Перезапуск фронтенда
@@ -656,12 +656,12 @@ docker-compose -f docker-compose.frontend.yml up --build --force-recreate -d
 
 ```bash
 # Backend мониторинг
-ssh root@157.230.27.200
+ssh root@159.89.108.100
 cd /opt/leadvertex-clone
 docker-compose -f docker-compose.backend.yml logs --tail=100 -f
 
 # Frontend мониторинг
-ssh root@164.90.219.122
+ssh root@139.59.158.109
 cd /opt/leadvertex-clone
 docker-compose -f docker-compose.frontend.yml logs --tail=100 -f
 
@@ -680,8 +680,8 @@ docker system prune -a -f
 ### Полезные URL для проверки
 
 - **Frontend**: https://moonline.pw/
-- **Backend API**: https://157.230.27.200:8000/docs
-- **API Health**: https://157.230.27.200:8000/health
+- **Backend API**: https://159.89.108.100:8000/docs
+- **API Health**: https://159.89.108.100:8000/health
 - **Frontend Health**: https://moonline.pw/health
 - **API через Frontend**: https://moonline.pw/api/health
 
@@ -743,17 +743,17 @@ ufw status
 
 # Тест подключения между серверами
 # На frontend сервере:
-curl -f http://157.230.27.200:8000/health
+curl -f http://159.89.108.100:8000/health
 
 # На backend сервере:
-curl -f http://164.90.219.122/health
+curl -f http://139.59.158.109/health
 ```
 
 ---
 
 ## ✅ Проверочный чек-лист
 
-### Backend сервер (157.230.27.200)
+### Backend сервер (159.89.108.100)
 - [ ] Docker и Docker Compose установлены
 - [ ] Репозиторий склонирован
 - [ ] .env файл создан с правильными настройками
@@ -764,7 +764,7 @@ curl -f http://164.90.219.122/health
 - [ ] Celery worker и beat работают
 - [ ] Nginx API gateway настроен
 
-### Frontend сервер (164.90.219.122)
+### Frontend сервер (139.59.158.109)
 - [ ] Docker и Docker Compose установлены
 - [ ] Node.js установлен
 - [ ] Репозиторий склонирован
@@ -785,5 +785,5 @@ curl -f http://164.90.219.122/health
 
 **🎉 Готово! Система развернута на разделенной архитектуре.**
 
-**Frontend**: `164.90.219.122` → https://moonline.pw/  
-**Backend**: `157.230.27.200` → https://157.230.27.200:8000/docs
+**Frontend**: `139.59.158.109` → https://moonline.pw/  
+**Backend**: `159.89.108.100` → https://159.89.108.100:8000/docs

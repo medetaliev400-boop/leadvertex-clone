@@ -4,12 +4,12 @@
 
 ## 🏗️ Архитектура системы
 
-**Frontend сервер**: `164.90.219.122`
+**Frontend сервер**: `139.59.158.109`
 - React приложение с TypeScript
 - Nginx reverse proxy
 - SSL сертификаты
 
-**Backend сервер**: `157.230.27.200`
+**Backend сервер**: `159.89.108.100`
 - FastAPI приложение
 - PostgreSQL 15 база данных
 - Redis кеш
@@ -20,7 +20,7 @@
 
 ### Автоматическое развертывание
 
-1. **На Backend сервере (157.230.27.200)**:
+1. **На Backend сервере (159.89.108.100)**:
 ```bash
 cd /opt
 git clone https://github.com/medetaliev400-boop/leadvertex-clone.git
@@ -28,7 +28,7 @@ cd leadvertex-clone
 bash deploy-backend-new.sh
 ```
 
-2. **На Frontend сервере (164.90.219.122)**:
+2. **На Frontend сервере (139.59.158.109)**:
 ```bash
 cd /opt
 git clone https://github.com/medetaliev400-boop/leadvertex-clone.git
@@ -57,11 +57,11 @@ docker-compose -f docker-compose.frontend.yml restart # перезапуск
 
 ## 🌐 Доступ к системе
 
-- **Frontend**: https://moonline.pw/ или http://164.90.219.122/
-- **Backend API**: https://157.230.27.200:8000/docs
+- **Frontend**: https://moonline.pw/ или http://139.59.158.109/
+- **Backend API**: https://159.89.108.100:8000/docs
 - **Health Check**: 
   - Frontend: https://moonline.pw/health
-  - Backend: https://157.230.27.200:8000/health
+  - Backend: https://159.89.108.100:8000/health
 
 ## 📚 Документация
 
@@ -87,7 +87,7 @@ npm start
 
 ```bash
 # Проверка backend
-curl https://157.230.27.200:8000/health
+curl https://159.89.108.100:8000/health
 
 # Проверка frontend
 curl https://moonline.pw/health
