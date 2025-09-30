@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const response = await apiService.login(email, password);
+      const response = await apiService.login({ email, password });
       
       if (response.success) {
         const { access_token, user: userData } = response.data;
@@ -88,6 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Clear localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('selectedProject');
     
     // Clear API service token
     apiService.setToken(null);
