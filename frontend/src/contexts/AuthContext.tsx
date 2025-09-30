@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
-        apiService.setAuthToken(storedToken);
+        apiService.setToken(storedToken);
       } catch (error) {
         // Clear invalid stored data
         localStorage.removeItem('token');
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(userData));
         
         // Set token for API service
-        apiService.setAuthToken(access_token);
+        apiService.setToken(access_token);
         
         return true;
       }
@@ -90,7 +90,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
     
     // Clear API service token
-    apiService.setAuthToken(null);
+    apiService.setToken(null);
   };
 
   const value: AuthContextType = {
