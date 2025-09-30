@@ -49,7 +49,8 @@ import {
   Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import { apiService, Project, Webmaster } from '../../services/api';
+import { Project, Webmaster } from '../../types';
+import { apiService as api } from '../../services/api';
 
 interface AffiliateLanding {
   id: number;
@@ -282,7 +283,7 @@ const CPA: React.FC = () => {
 
   const loadProjects = async () => {
     try {
-      const response = await apiService.getProjects();
+      const response = await api.getProjects();
       if (response.success && response.data) {
         setProjects(response.data);
         if (response.data.length > 0) {
