@@ -10,9 +10,6 @@ import {
   Alert,
   CircularProgress,
   Link,
-  Divider,
-  FormControlLabel,
-  Checkbox,
   Grid,
   Select,
   MenuItem,
@@ -20,6 +17,7 @@ import {
   InputLabel,
 } from '@mui/material';
 import { useAuth } from '../../contexts/AuthContext';
+import { apiService } from '../../services/api';
 
 interface RegistrationFormData {
   firstName: string;
@@ -28,13 +26,7 @@ interface RegistrationFormData {
   password: string;
   confirmPassword: string;
   phone: string;
-  company: string;
-  position: string;
-  industry: string;
-  employeeCount: string;
   role: string;
-  agreeToTerms: boolean;
-  agreeToNewsletter: boolean;
 }
 
 const Register: React.FC = () => {
@@ -48,13 +40,7 @@ const Register: React.FC = () => {
     password: '',
     confirmPassword: '',
     phone: '',
-    company: '',
-    position: '',
-    industry: '',
-    employeeCount: '',
     role: 'operator',
-    agreeToTerms: false,
-    agreeToNewsletter: true,
   });
   
   const [loading, setLoading] = useState(false);
@@ -65,27 +51,6 @@ const Register: React.FC = () => {
   if (isAuthenticated) {
     return <Navigate to="/project-selection" replace />;
   }
-
-  const industries = [
-    'E-commerce',
-    'Образование',
-    'Финансы',
-    'Здравоохранение',
-    'IT/Технологии',
-    'Недвижимость',
-    'Производство',
-    'Ретейл',
-    'Услуги',
-    'Другое',
-  ];
-
-  const employeeCounts = [
-    '1-10',
-    '11-50',
-    '51-100',
-    '101-500',
-    '500+',
-  ];
 
   const roles = [
     { value: 'operator', label: 'Оператор' },
@@ -119,10 +84,6 @@ const Register: React.FC = () => {
   };
 
   const validateForm = (): string | null => {
-    if (!formData.firstName || !formData.lastName) {
-      return 'Пожалуйста, введите имя и фамилию';
-    }
-    
     if (!formData.email) {
       return 'Пожалуйста, введите email';
     }
@@ -136,20 +97,12 @@ const Register: React.FC = () => {
       return 'Пожалуйста, введите пароль';
     }
     
-    if (formData.password.length < 6) {
-      return 'Пароль должен содержать минимум 6 символов';
+    if (formData.password.length < 8) {
+      return 'Пароль должен содержать минимум 8 символов';
     }
     
     if (formData.password !== formData.confirmPassword) {
       return 'Пароли не совпадают';
-    }
-    
-    if (!formData.company) {
-      return 'Пожалуйста, введите название компании';
-    }
-    
-    if (!formData.agreeToTerms) {
-      return 'Необходимо согласиться с условиями использования';
     }
     
     return null;
@@ -171,29 +124,20 @@ const Register: React.FC = () => {
       // Prepare data for API
       const registrationData = {
         email: formData.email,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        phone: formData.phone || null,
+        first_name: formData.firstName || undefined,
+        last_name: formData.lastName || undefined,
+        phone: formData.phone || undefined,
         role: formData.role,
         password: formData.password,
       };
 
       // Send registration request to API
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(registrationData),
-      });
+      const response = await apiService.register(registrationData);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Ошибка регистрации');
+      if (!response.success) {
+        throw new Error(response.error || 'Ошибка регистрации');
       }
 
-      const result = await response.json();
-      
       // Show success and redirect
       setSuccess(true);
       
@@ -311,7 +255,7 @@ const Register: React.FC = () => {
               {/* Personal Information */}
               <Grid item xs={12}>
                 <Typography variant="h6" fontWeight="bold" gutterBottom>
-                  Личная информация
+                  Регистрация
                 </Typography>
               </Grid>
               
@@ -321,7 +265,6 @@ const Register: React.FC = () => {
                   label="Имя"
                   value={formData.firstName}
                   onChange={handleInputChange('firstName')}
-                  required
                   disabled={loading}
                 />
               </Grid>
@@ -332,12 +275,11 @@ const Register: React.FC = () => {
                   label="Фамилия"
                   value={formData.lastName}
                   onChange={handleInputChange('lastName')}
-                  required
                   disabled={loading}
                 />
               </Grid>
               
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12}>
                 <TextField
                   fullWidth
                   label="Email"
@@ -386,7 +328,7 @@ const Register: React.FC = () => {
                   onChange={handleInputChange('password')}
                   required
                   disabled={loading}
-                  helperText="Минимум 6 символов"
+                  helperText="Минимум 8 символов"
                 />
               </Grid>
               
@@ -399,110 +341,6 @@ const Register: React.FC = () => {
                   onChange={handleInputChange('confirmPassword')}
                   required
                   disabled={loading}
-                />
-              </Grid>
-
-              {/* Company Information */}
-              <Grid item xs={12} sx={{ mt: 2 }}>
-                <Typography variant="h6" fontWeight="bold" gutterBottom>
-                  Информация о компании
-                </Typography>
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Название компании"
-                  value={formData.company}
-                  onChange={handleInputChange('company')}
-                  required
-                  disabled={loading}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Должность"
-                  value={formData.position}
-                  onChange={handleInputChange('position')}
-                  disabled={loading}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Отрасль</InputLabel>
-                  <Select
-                    value={formData.industry}
-                    onChange={handleSelectChange('industry')}
-                    disabled={loading}
-                  >
-                    {industries.map((industry) => (
-                      <MenuItem key={industry} value={industry}>
-                        {industry}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Количество сотрудников</InputLabel>
-                  <Select
-                    value={formData.employeeCount}
-                    onChange={handleSelectChange('employeeCount')}
-                    disabled={loading}
-                  >
-                    {employeeCounts.map((count) => (
-                      <MenuItem key={count} value={count}>
-                        {count}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              {/* Agreements */}
-              <Grid item xs={12} sx={{ mt: 2 }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={formData.agreeToTerms}
-                      onChange={handleInputChange('agreeToTerms')}
-                      disabled={loading}
-                    />
-                  }
-                  label={
-                    <Typography variant="body2">
-                      Я соглашаюсь с{' '}
-                      <Link href="#" underline="hover">
-                        условиями использования
-                      </Link>{' '}
-                      и{' '}
-                      <Link href="#" underline="hover">
-                        политикой конфиденциальности
-                      </Link>
-                    </Typography>
-                  }
-                />
-              </Grid>
-              
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={formData.agreeToNewsletter}
-                      onChange={handleInputChange('agreeToNewsletter')}
-                      disabled={loading}
-                    />
-                  }
-                  label={
-                    <Typography variant="body2">
-                      Я хочу получать новости и специальные предложения по email
-                    </Typography>
-                  }
                 />
               </Grid>
             </Grid>

@@ -38,10 +38,10 @@ interface LoginResponse {
 interface RegisterRequest {
   email: string;
   password: string;
-  first_name: string;
-  last_name: string;
+  first_name?: string;
+  last_name?: string;
   phone?: string;
-  company_name?: string;
+  role?: string;
 }
 
 class ApiService {
