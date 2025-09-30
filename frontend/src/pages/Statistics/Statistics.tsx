@@ -898,7 +898,7 @@ const Statistics: React.FC = () => {
                         Динамика выкупаемости
                       </Typography>
                       <ResponsiveContainer width="100%" height={300}>
-                        <ComposedChart data={conversionStats}>
+                        <ComposedChart data={mockConversionStats}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="period" />
                           <YAxis yAxisId="left" />
