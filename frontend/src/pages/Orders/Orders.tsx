@@ -120,6 +120,7 @@ const Orders: React.FC = () => {
         page,
         limit: pageSize,
         ...filters,
+        status_id: filters.status_id || undefined,
         date_from: filters.date_from?.toISOString(),
         date_to: filters.date_to?.toISOString(),
       };
