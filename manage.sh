@@ -1,431 +1,323 @@
 #!/bin/bash
 
-# LeadVertex Clone Management Script
-# Comprehensive management script for development and production
+# Универсальный скрипт управления LeadVertex Clone
+# Автор: MiniMax Agent
 
-set -e  # Exit on any error
+set -e
 
-# Colors for output
+# Цвета для вывода
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Default environment
-ENVIRONMENT=${ENVIRONMENT:-development}
-COMPOSE_FILE="docker-compose.yml"
+# Функция для вывода заголовков
+print_header() {
+    echo -e "${BLUE}$1${NC}"
+}
 
-if [ "$ENVIRONMENT" = "production" ]; then
-    COMPOSE_FILE="docker-compose.prod.yml"
+# Функция для вывода успешных сообщений
+print_success() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+# Функция для вывода предупреждений
+print_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
+# Функция для вывода ошибок
+print_error() {
+    echo -e "${RED}❌ $1${NC}"
+}
+
+# Показать меню
+show_menu() {
+    print_header "🚀 LeadVertex Clone - Менеджер развертывания"
+    echo "============================================="
+    echo ""
+    echo "BACKEND СЕРВЕР (157.230.27.200):"
+    echo "  1) Развернуть Backend полностью"
+    echo "  2) Перезапустить Backend сервисы"
+    echo "  3) Показать логи Backend"
+    echo "  4) Показать статус Backend"
+    echo "  5) Остановить Backend"
+    echo ""
+    echo "FRONTEND СЕРВЕР (164.90.219.122):"
+    echo "  6) Развернуть Frontend полностью"
+    echo "  7) Перезапустить Frontend сервисы"
+    echo "  8) Показать логи Frontend"
+    echo "  9) Показать статус Frontend"
+    echo "  10) Остановить Frontend"
+    echo ""
+    echo "ОБЩИЕ КОМАНДЫ:"
+    echo "  11) Проверить здоровье всей системы"
+    echo "  12) Очистить Docker ресурсы"
+    echo "  13) Обновить код из Git"
+    echo "  14) Показать документацию"
+    echo ""
+    echo "  0) Выход"
+    echo ""
+}
+
+# Функция развертывания Backend
+deploy_backend() {
+    print_header "🚀 Развертывание Backend..."
+    
+    if [ ! -f "docker-compose.backend.yml" ]; then
+        print_error "docker-compose.backend.yml не найден!"
+        return 1
+    fi
+    
+    ./deploy-backend-new.sh
+}
+
+# Функция развертывания Frontend
+deploy_frontend() {
+    print_header "🚀 Развертывание Frontend..."
+    
+    if [ ! -d "frontend" ]; then
+        print_error "Директория frontend не найдена!"
+        return 1
+    fi
+    
+    ./deploy-frontend-new.sh
+}
+
+# Функция перезапуска Backend
+restart_backend() {
+    print_header "🔄 Перезапуск Backend сервисов..."
+    docker-compose -f docker-compose.backend.yml restart
+    print_success "Backend сервисы перезапущены"
+}
+
+# Функция перезапуска Frontend
+restart_frontend() {
+    print_header "🔄 Перезапуск Frontend сервисов..."
+    if [ -f "docker-compose.frontend.yml" ]; then
+        docker-compose -f docker-compose.frontend.yml restart
+        print_success "Frontend сервисы перезапущены"
+    else
+        print_error "docker-compose.frontend.yml не найден"
+    fi
+}
+
+# Функция показа логов Backend
+show_backend_logs() {
+    print_header "📋 Логи Backend сервисов..."
+    docker-compose -f docker-compose.backend.yml logs --tail=100 -f
+}
+
+# Функция показа логов Frontend
+show_frontend_logs() {
+    print_header "📋 Логи Frontend сервисов..."
+    if [ -f "docker-compose.frontend.yml" ]; then
+        docker-compose -f docker-compose.frontend.yml logs --tail=100 -f
+    else
+        print_error "docker-compose.frontend.yml не найден"
+    fi
+}
+
+# Функция показа статуса Backend
+show_backend_status() {
+    print_header "📊 Статус Backend сервисов..."
+    docker-compose -f docker-compose.backend.yml ps
+}
+
+# Функция показа статуса Frontend
+show_frontend_status() {
+    print_header "📊 Статус Frontend сервисов..."
+    if [ -f "docker-compose.frontend.yml" ]; then
+        docker-compose -f docker-compose.frontend.yml ps
+    else
+        print_warning "docker-compose.frontend.yml не найден"
+    fi
+}
+
+# Функция остановки Backend
+stop_backend() {
+    print_header "🛑 Остановка Backend сервисов..."
+    docker-compose -f docker-compose.backend.yml down
+    print_success "Backend сервисы остановлены"
+}
+
+# Функция остановки Frontend
+stop_frontend() {
+    print_header "🛑 Остановка Frontend сервисов..."
+    if [ -f "docker-compose.frontend.yml" ]; then
+        docker-compose -f docker-compose.frontend.yml down
+        print_success "Frontend сервисы остановлены"
+    else
+        print_warning "docker-compose.frontend.yml не найден"
+    fi
+}
+
+# Функция проверки здоровья системы
+health_check() {
+    print_header "🔍 Проверка здоровья системы..."
+    
+    echo ""
+    echo "Backend проверки:"
+    
+    # Проверяем Backend API
+    if curl -f http://localhost:8000/health > /dev/null 2>&1; then
+        print_success "Backend API: OK"
+    else
+        print_error "Backend API: НЕДОСТУПЕН"
+    fi
+    
+    # Проверяем Backend Nginx
+    if curl -k https://localhost/health > /dev/null 2>&1; then
+        print_success "Backend Nginx: OK"
+    else
+        print_error "Backend Nginx: НЕДОСТУПЕН"
+    fi
+    
+    echo ""
+    echo "Frontend проверки:"
+    
+    # Проверяем Frontend
+    if curl -f http://localhost/health > /dev/null 2>&1; then
+        print_success "Frontend HTTP: OK"
+    else
+        print_error "Frontend HTTP: НЕДОСТУПЕН"
+    fi
+    
+    # Проверяем Frontend HTTPS
+    if curl -k https://localhost/health > /dev/null 2>&1; then
+        print_success "Frontend HTTPS: OK"
+    else
+        print_error "Frontend HTTPS: НЕДОСТУПЕН"
+    fi
+    
+    # Проверяем API проксирование
+    if curl -k https://localhost/api/health > /dev/null 2>&1; then
+        print_success "API Proxy: OK"
+    else
+        print_warning "API Proxy: НЕ РАБОТАЕТ (возможно backend недоступен)"
+    fi
+    
+    echo ""
+    echo "Docker статистика:"
+    docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
+}
+
+# Функция очистки Docker ресурсов
+clean_docker() {
+    print_header "🧹 Очистка Docker ресурсов..."
+    
+    echo "Остановка всех контейнеров..."
+    docker-compose -f docker-compose.backend.yml down 2>/dev/null || true
+    [ -f "docker-compose.frontend.yml" ] && docker-compose -f docker-compose.frontend.yml down 2>/dev/null || true
+    
+    echo "Очистка неиспользуемых ресурсов..."
+    docker system prune -f
+    
+    print_success "Docker ресурсы очищены"
+}
+
+# Функция обновления кода
+update_code() {
+    print_header "📥 Обновление кода из Git..."
+    
+    git fetch origin
+    git pull origin main
+    
+    print_success "Код обновлен"
+    print_warning "Не забудьте перезапустить сервисы после обновления"
+}
+
+# Функция показа документации
+show_docs() {
+    print_header "📚 Документация развертывания"
+    
+    if [ -f "FULL_DEPLOYMENT_GUIDE.md" ]; then
+        echo "Полная документация находится в файле: FULL_DEPLOYMENT_GUIDE.md"
+        echo ""
+        echo "Основные URL после развертывания:"
+        echo "- Frontend: https://moonline.pw/"
+        echo "- Backend API: https://157.230.27.200:8000/docs"
+        echo "- Health Check Backend: https://157.230.27.200:8000/health"
+        echo "- Health Check Frontend: https://moonline.pw/health"
+        echo ""
+        echo "IP адреса серверов:"
+        echo "- Frontend сервер: 164.90.219.122"
+        echo "- Backend сервер: 157.230.27.200"
+    else
+        print_error "Файл документации не найден"
+    fi
+}
+
+# Основной цикл
+main() {
+    while true; do
+        show_menu
+        read -p "Выберите действие: " choice
+        
+        case $choice in
+            1)
+                deploy_backend
+                ;;
+            2)
+                restart_backend
+                ;;
+            3)
+                show_backend_logs
+                ;;
+            4)
+                show_backend_status
+                ;;
+            5)
+                stop_backend
+                ;;
+            6)
+                deploy_frontend
+                ;;
+            7)
+                restart_frontend
+                ;;
+            8)
+                show_frontend_logs
+                ;;
+            9)
+                show_frontend_status
+                ;;
+            10)
+                stop_frontend
+                ;;
+            11)
+                health_check
+                ;;
+            12)
+                clean_docker
+                ;;
+            13)
+                update_code
+                ;;
+            14)
+                show_docs
+                ;;
+            0)
+                print_success "Выход из программы"
+                exit 0
+                ;;
+            *)
+                print_error "Неверный выбор. Попробуйте снова."
+                ;;
+        esac
+        
+        echo ""
+        read -p "Нажмите Enter для продолжения..."
+        clear
+    done
+}
+
+# Проверяем что мы в правильной директории
+if [ ! -f "docker-compose.backend.yml" ] && [ ! -d "frontend" ]; then
+    print_error "Запустите скрипт из директории leadvertex-clone"
+    exit 1
 fi
 
-# Function to print colored output
-print_status() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-print_header() {
-    echo -e "${BLUE}========================================${NC}"
-    echo -e "${BLUE} $1${NC}"
-    echo -e "${BLUE}========================================${NC}"
-}
-
-# Help function
-show_help() {
-    echo "LeadVertex Clone Management Script"
-    echo ""
-    echo "Usage: $0 [COMMAND]"
-    echo ""
-    echo "Commands:"
-    echo "  start           Start all services"
-    echo "  stop            Stop all services"
-    echo "  restart         Restart all services"
-    echo "  build           Build all Docker images"
-    echo "  rebuild         Rebuild and restart all services"
-    echo "  logs            Show logs for all services"
-    echo "  logs-backend    Show backend logs"
-    echo "  logs-frontend   Show frontend logs"
-    echo "  logs-celery     Show celery worker logs"
-    echo "  shell-backend   Open backend shell"
-    echo "  shell-db        Open database shell"
-    echo "  init-db         Initialize database with sample data"
-    echo "  migrate         Run database migrations"
-    echo "  backup-db       Backup database"
-    echo "  restore-db      Restore database from backup"
-    echo "  test            Run tests"
-    echo "  clean           Clean up containers and volumes"
-    echo "  status          Show services status"
-    echo "  update          Update and restart services"
-    echo "  monitor         Open monitoring interfaces"
-    echo "  production      Switch to production mode"
-    echo "  development     Switch to development mode"
-    echo ""
-    echo "Environment Variables:"
-    echo "  ENVIRONMENT     Set to 'production' for production mode (default: development)"
-    echo ""
-    echo "Examples:"
-    echo "  $0 start                    # Start in development mode"
-    echo "  ENVIRONMENT=production $0 start  # Start in production mode"
-}
-
-# Check if Docker is running
-check_docker() {
-    if ! docker info > /dev/null 2>&1; then
-        print_error "Docker is not running. Please start Docker first."
-        exit 1
-    fi
-}
-
-# Check if .env file exists
-check_env_file() {
-    if [ ! -f .env ] && [ "$ENVIRONMENT" = "production" ]; then
-        print_warning ".env file not found. Creating from .env.example..."
-        if [ -f .env.example ]; then
-            cp .env.example .env
-            print_warning "Please edit .env file with your production settings"
-        else
-            print_error ".env.example file not found"
-            exit 1
-        fi
-    fi
-}
-
-# Start services
-start_services() {
-    print_header "Starting LeadVertex Clone ($ENVIRONMENT mode)"
-    check_docker
-    check_env_file
-    
-    if [ "$ENVIRONMENT" = "production" ]; then
-        docker-compose -f $COMPOSE_FILE up -d --remove-orphans
-    else
-        docker-compose -f $COMPOSE_FILE up -d
-    fi
-    
-    print_status "Services started successfully!"
-    
-    # Wait for services to be ready
-    print_status "Waiting for services to be ready..."
-    sleep 10
-    
-    # Initialize database if needed
-    if ! docker-compose -f $COMPOSE_FILE exec backend python -c "from app.models.user import User; from app.core.database import SessionLocal; db = SessionLocal(); print(db.query(User).first())" 2>/dev/null; then
-        print_status "Initializing database..."
-        init_database
-    fi
-    
-    show_access_info
-}
-
-# Stop services
-stop_services() {
-    print_header "Stopping LeadVertex Clone"
-    docker-compose -f $COMPOSE_FILE down
-    print_status "Services stopped successfully!"
-}
-
-# Restart services
-restart_services() {
-    print_header "Restarting LeadVertex Clone"
-    stop_services
-    start_services
-}
-
-# Build images
-build_images() {
-    print_header "Building Docker Images"
-    docker-compose -f $COMPOSE_FILE build --no-cache
-    print_status "Images built successfully!"
-}
-
-# Rebuild and restart
-rebuild_services() {
-    print_header "Rebuilding and Restarting Services"
-    build_images
-    restart_services
-}
-
-# Show logs
-show_logs() {
-    if [ -n "$2" ]; then
-        docker-compose -f $COMPOSE_FILE logs -f "$2"
-    else
-        docker-compose -f $COMPOSE_FILE logs -f
-    fi
-}
-
-# Backend shell
-backend_shell() {
-    print_status "Opening backend shell..."
-    docker-compose -f $COMPOSE_FILE exec backend bash
-}
-
-# Database shell
-database_shell() {
-    print_status "Opening database shell..."
-    docker-compose -f $COMPOSE_FILE exec postgres psql -U leadvertex -d leadvertex
-}
-
-# Initialize database
-init_database() {
-    print_header "Initializing Database"
-    
-    # Run migrations
-    print_status "Running database migrations..."
-    docker-compose -f $COMPOSE_FILE exec backend alembic upgrade head || true
-    
-    # Create initial data
-    print_status "Creating initial data..."
-    docker-compose -f $COMPOSE_FILE exec backend python app/scripts/init_data.py
-    
-    print_status "Database initialized successfully!"
-}
-
-# Run migrations
-run_migrations() {
-    print_header "Running Database Migrations"
-    docker-compose -f $COMPOSE_FILE exec backend alembic upgrade head
-    print_status "Migrations completed successfully!"
-}
-
-# Backup database
-backup_database() {
-    print_header "Backing Up Database"
-    
-    mkdir -p backups
-    BACKUP_FILE="backup_$(date +%Y%m%d_%H%M%S).sql"
-    docker-compose -f $COMPOSE_FILE exec -T postgres pg_dump -U leadvertex leadvertex > "backups/$BACKUP_FILE"
-    
-    print_status "Database backed up to: backups/$BACKUP_FILE"
-}
-
-# Restore database
-restore_database() {
-    if [ -z "$2" ]; then
-        print_error "Please specify backup file: $0 restore-db <backup_file>"
-        exit 1
-    fi
-    
-    print_header "Restoring Database"
-    print_warning "This will overwrite the current database!"
-    read -p "Are you sure? (y/N): " -n 1 -r
-    echo
-    
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker-compose -f $COMPOSE_FILE exec -T postgres psql -U leadvertex -d leadvertex < "$2"
-        print_status "Database restored successfully!"
-    else
-        print_status "Database restore cancelled."
-    fi
-}
-
-# Run tests
-run_tests() {
-    print_header "Running Tests"
-    docker-compose -f $COMPOSE_FILE exec backend python -m pytest tests/ -v
-}
-
-# Clean up
-cleanup() {
-    print_header "Cleaning Up"
-    print_warning "This will remove all containers, volumes, and images!"
-    read -p "Are you sure? (y/N): " -n 1 -r
-    echo
-    
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker-compose -f $COMPOSE_FILE down -v --rmi all
-        docker system prune -f
-        print_status "Cleanup completed!"
-    else
-        print_status "Cleanup cancelled."
-    fi
-}
-
-# Show status
-show_status() {
-    print_header "Services Status"
-    docker-compose -f $COMPOSE_FILE ps
-    
-    print_header "System Resources"
-    docker system df
-}
-
-# Update services
-update_services() {
-    print_header "Updating Services"
-    
-    # Pull latest images
-    docker-compose -f $COMPOSE_FILE pull
-    
-    # Rebuild and restart
-    rebuild_services
-    
-    print_status "Services updated successfully!"
-}
-
-# Show monitoring interfaces
-show_monitoring() {
-    print_header "Monitoring Interfaces"
-    
-    echo "Available monitoring interfaces:"
-    echo ""
-    echo "🌐 Application:        http://localhost:3000"
-    echo "📊 API Documentation: http://localhost:8000/api/docs"
-    echo "🌺 Flower (Celery):   http://localhost:5555"
-    echo "💾 Database:          localhost:5432"
-    echo "🔴 Redis:             localhost:6379"
-    echo ""
-    
-    if command -v open >/dev/null; then
-        echo "Opening interfaces..."
-        open http://localhost:3000
-        open http://localhost:8000/api/docs
-        open http://localhost:5555
-    fi
-}
-
-# Switch to production mode
-switch_to_production() {
-    print_header "Switching to Production Mode"
-    export ENVIRONMENT=production
-    COMPOSE_FILE="docker-compose.prod.yml"
-    
-    # Start with production profile
-    docker-compose -f $COMPOSE_FILE --profile production up -d
-    
-    print_status "Switched to production mode!"
-    show_access_info
-}
-
-# Switch to development mode
-switch_to_development() {
-    print_header "Switching to Development Mode"
-    export ENVIRONMENT=development
-    COMPOSE_FILE="docker-compose.yml"
-    
-    restart_services
-    print_status "Switched to development mode!"
-}
-
-# Show access information
-show_access_info() {
-    print_header "Access Information"
-    
-    echo "🚀 LeadVertex Clone is running!"
-    echo ""
-    echo "🌐 Frontend:           http://localhost:3000"
-    echo "🔧 Backend API:        http://localhost:8000"
-    echo "📚 API Docs:           http://localhost:8000/api/docs"
-    echo "🌺 Celery Monitor:     http://localhost:5555"
-    echo ""
-    echo "👤 Demo Accounts:"
-    echo "   Admin:     admin@leadvertex.ru / admin123"
-    echo "   Operator:  operator@leadvertex.ru / operator123"
-    echo ""
-    echo "💡 Management Commands:"
-    echo "   View logs:    $0 logs"
-    echo "   Stop:         $0 stop"
-    echo "   Restart:      $0 restart"
-    echo ""
-}
-
-# Create necessary directories
-create_directories() {
-    mkdir -p backups
-    mkdir -p logs
-}
-
-# Main command handler
-main() {
-    create_directories
-    
-    case "${1:-help}" in
-        "start")
-            start_services
-            ;;
-        "stop")
-            stop_services
-            ;;
-        "restart")
-            restart_services
-            ;;
-        "build")
-            build_images
-            ;;
-        "rebuild")
-            rebuild_services
-            ;;
-        "logs")
-            show_logs "$@"
-            ;;
-        "logs-backend")
-            show_logs "$1" "backend"
-            ;;
-        "logs-frontend") 
-            show_logs "$1" "frontend"
-            ;;
-        "logs-celery")
-            show_logs "$1" "celery-worker"
-            ;;
-        "shell-backend")
-            backend_shell
-            ;;
-        "shell-db")
-            database_shell
-            ;;
-        "init-db")
-            init_database
-            ;;
-        "migrate")
-            run_migrations
-            ;;
-        "backup-db")
-            backup_database
-            ;;
-        "restore-db")
-            restore_database "$@"
-            ;;
-        "test")
-            run_tests
-            ;;
-        "clean")
-            cleanup
-            ;;
-        "status")
-            show_status
-            ;;
-        "update")
-            update_services
-            ;;
-        "monitor")
-            show_monitoring
-            ;;
-        "production")
-            switch_to_production
-            ;;
-        "development")
-            switch_to_development
-            ;;
-        "help"|"-h"|"--help")
-            show_help
-            ;;
-        *)
-            print_error "Unknown command: $1"
-            echo ""
-            show_help
-            exit 1
-            ;;
-    esac
-}
-
-# Run main function
-main "$@"
+# Запускаем основной цикл
+main

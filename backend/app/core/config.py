@@ -61,8 +61,8 @@ class Settings(BaseSettings):
     MAIN_DOMAIN: str = "moonline.pw"
     
     # Server Configuration
-    FRONTEND_SERVER_IP: str = "157.230.100.209"
-    BACKEND_SERVER_IP: str = "68.183.209.116"
+    FRONTEND_SERVER_IP: str = "164.90.219.122"
+    BACKEND_SERVER_IP: str = "157.230.27.200"
     
     # Development
     DEBUG: bool = True
