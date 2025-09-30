@@ -86,9 +86,9 @@ const Register: React.FC = () => {
   ];
 
   const handleInputChange = (field: keyof RegistrationFormData) => (
-    event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<{ value: unknown }>
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const target = event.target as any;
+    const target = event.target;
     const value = target.type === 'checkbox' 
       ? target.checked 
       : target.value;
@@ -96,6 +96,15 @@ const Register: React.FC = () => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
+    }));
+  };
+
+  const handleSelectChange = (field: keyof RegistrationFormData) => (
+    event: any
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: event.target.value,
     }));
   };
 
@@ -376,7 +385,7 @@ const Register: React.FC = () => {
                   <InputLabel>Отрасль</InputLabel>
                   <Select
                     value={formData.industry}
-                    onChange={handleInputChange('industry')}
+                    onChange={handleSelectChange('industry')}
                     disabled={loading}
                   >
                     {industries.map((industry) => (
@@ -393,7 +402,7 @@ const Register: React.FC = () => {
                   <InputLabel>Количество сотрудников</InputLabel>
                   <Select
                     value={formData.employeeCount}
-                    onChange={handleInputChange('employeeCount')}
+                    onChange={handleSelectChange('employeeCount')}
                     disabled={loading}
                   >
                     {employeeCounts.map((count) => (
