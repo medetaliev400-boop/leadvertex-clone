@@ -18,9 +18,12 @@ export interface PaginatedResponse<T> {
 export interface User {
   id: number;
   email: string;
-  name: string;
-  role: string;
+  name?: string;
+  first_name?: string;
+  last_name?: string;
+  role: 'admin' | 'operator' | 'designer' | 'webmaster' | 'representative' | string;
   avatar?: string;
+  avatar_url?: string;
   phone?: string;
   created_at: string;
   last_login?: string;
