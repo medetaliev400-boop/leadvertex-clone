@@ -58,6 +58,17 @@ import { ru } from 'date-fns/locale';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiService, Project } from '../../services/api';
 
+// Type casting for recharts components to avoid TypeScript issues
+const XAxisTyped = XAxis as any;
+const YAxisTyped = YAxis as any;
+const TooltipTyped = Tooltip as any;
+const LineTyped = Line as any;
+const BarTyped = Bar as any;
+const AreaTyped = Area as any;
+const PieTyped = Pie as any;
+const CellTyped = Cell as any;
+const LegendTyped = Legend as any;
+
 interface StatisticsFilters {
   project_id: number | null;
   date_from: Date | null;
@@ -480,7 +491,7 @@ const Statistics: React.FC = () => {
                 <DatePicker
                   label="Дата с"
                   value={filters.date_from}
-                  onChange={(newValue) => setFilters({ ...filters, date_from: newValue })}
+                  onChange={(newValue: any) => setFilters({ ...filters, date_from: newValue })}
                   slotProps={{ textField: { size: 'small' } }}
                 />
               </LocalizationProvider>
@@ -490,7 +501,7 @@ const Statistics: React.FC = () => {
                 <DatePicker
                   label="Дата по"
                   value={filters.date_to}
-                  onChange={(newValue) => setFilters({ ...filters, date_to: newValue })}
+                  onChange={(newValue: any) => setFilters({ ...filters, date_to: newValue })}
                   slotProps={{ textField: { size: 'small' } }}
                 />
               </LocalizationProvider>
@@ -659,19 +670,19 @@ const Statistics: React.FC = () => {
                       <ResponsiveContainer width="100%" height={300}>
                         <ComposedChart data={dailyRevenueData}>
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="date" />
-                          <YAxis yAxisId="left" />
-                          <YAxis yAxisId="right" orientation="right" />
-                          <Tooltip 
-                            formatter={(value, name) => [
+                          <XAxisTyped dataKey="date" />
+                          <YAxisTyped yAxisId="left" />
+                          <YAxisTyped yAxisId="right" orientation="right" />
+                          <TooltipTyped 
+                            formatter={(value: any, name: any) => [
                               name === 'revenue' ? formatCurrency(Number(value)) : value,
                               name === 'revenue' ? 'Выручка' : name === 'orders' ? 'Заказы' : 'Конверсия %'
                             ]}
                           />
-                          <Legend />
-                          <Area yAxisId="left" type="monotone" dataKey="revenue" fill="#e3f2fd" stroke="#2196f3" strokeWidth={2} />
-                          <Bar yAxisId="left" dataKey="orders" fill="#4caf50" />
-                          <Line yAxisId="right" type="monotone" dataKey="conversion" stroke="#ff9800" strokeWidth={3} dot={{ fill: '#ff9800' }} />
+                          <LegendTyped />
+                          <AreaTyped yAxisId="left" type="monotone" dataKey="revenue" fill="#e3f2fd" stroke="#2196f3" strokeWidth={2} />
+                          <BarTyped yAxisId="left" dataKey="orders" fill="#4caf50" />
+                          <LineTyped yAxisId="right" type="monotone" dataKey="conversion" stroke="#ff9800" strokeWidth={3} dot={{ fill: '#ff9800' }} />
                         </ComposedChart>
                       </ResponsiveContainer>
                     </CardContent>
@@ -687,20 +698,20 @@ const Statistics: React.FC = () => {
                       </Typography>
                       <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
-                          <Pie
+                          <PieTyped
                             data={orderStatusData}
                             cx="50%"
                             cy="50%"
                             outerRadius={80}
                             fill="#8884d8"
                             dataKey="value"
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
                           >
                             {orderStatusData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
+                              <CellTyped key={`cell-${index}`} fill={entry.color} />
                             ))}
-                          </Pie>
-                          <Tooltip formatter={(value) => [value, 'Заказов']} />
+                          </PieTyped>
+                          <TooltipTyped formatter={(value: any) => [value, 'Заказов']} />
                         </PieChart>
                       </ResponsiveContainer>
                     </CardContent>
@@ -900,14 +911,14 @@ const Statistics: React.FC = () => {
                       <ResponsiveContainer width="100%" height={300}>
                         <ComposedChart data={mockConversionStats}>
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="period" />
-                          <YAxis yAxisId="left" />
-                          <YAxis yAxisId="right" orientation="right" />
-                          <Tooltip />
-                          <Legend />
-                          <Bar yAxisId="left" dataKey="shipped" fill="#2196f3" name="Отправлено" />
-                          <Bar yAxisId="left" dataKey="paid" fill="#4caf50" name="Выкуплено" />
-                          <Line yAxisId="right" type="monotone" dataKey="payment_rate" stroke="#ff9800" strokeWidth={3} name="% Выкупаемости" />
+                          <XAxisTyped dataKey="period" />
+                          <YAxisTyped yAxisId="left" />
+                          <YAxisTyped yAxisId="right" orientation="right" />
+                          <TooltipTyped />
+                          <LegendTyped />
+                          <BarTyped yAxisId="left" dataKey="shipped" fill="#2196f3" name="Отправлено" />
+                          <BarTyped yAxisId="left" dataKey="paid" fill="#4caf50" name="Выкуплено" />
+                          <LineTyped yAxisId="right" type="monotone" dataKey="payment_rate" stroke="#ff9800" strokeWidth={3} name="% Выкупаемости" />
                         </ComposedChart>
                       </ResponsiveContainer>
                     </CardContent>
@@ -1240,14 +1251,14 @@ const Statistics: React.FC = () => {
                           { hour: '18:00', calls: 267, connected: 156, rate: 58.4 }
                         ]}>
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="hour" />
-                          <YAxis yAxisId="left" />
-                          <YAxis yAxisId="right" orientation="right" />
-                          <Tooltip />
-                          <Legend />
-                          <Bar yAxisId="left" dataKey="calls" fill="#2196f3" name="Звонки" />
-                          <Bar yAxisId="left" dataKey="connected" fill="#4caf50" name="Дозвонились" />
-                          <Line yAxisId="right" type="monotone" dataKey="rate" stroke="#ff9800" strokeWidth={3} name="% Дозвона" />
+                          <XAxisTyped dataKey="hour" />
+                          <YAxisTyped yAxisId="left" />
+                          <YAxisTyped yAxisId="right" orientation="right" />
+                          <TooltipTyped />
+                          <LegendTyped />
+                          <BarTyped yAxisId="left" dataKey="calls" fill="#2196f3" name="Звонки" />
+                          <BarTyped yAxisId="left" dataKey="connected" fill="#4caf50" name="Дозвонились" />
+                          <LineTyped yAxisId="right" type="monotone" dataKey="rate" stroke="#ff9800" strokeWidth={3} name="% Дозвона" />
                         </LineChart>
                       </ResponsiveContainer>
                     </CardContent>
@@ -1446,15 +1457,15 @@ const Statistics: React.FC = () => {
                       <ResponsiveContainer width="100%" height={400}>
                         <BarChart data={conversionFunnelData} layout="horizontal">
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis type="number" />
-                          <YAxis dataKey="stage" type="category" width={100} />
-                          <Tooltip 
-                            formatter={(value, name) => [
+                          <XAxisTyped type="number" />
+                          <YAxisTyped dataKey="stage" type="category" width={100} />
+                          <TooltipTyped 
+                            formatter={(value: any, name: any) => [
                               typeof value === 'number' ? value.toLocaleString() : value,
                               name === 'count' ? 'Количество' : 'Процент'
                             ]}
                           />
-                          <Bar dataKey="count" fill="#2196f3" />
+                          <BarTyped dataKey="count" fill="#2196f3" />
                         </BarChart>
                       </ResponsiveContainer>
                     </CardContent>

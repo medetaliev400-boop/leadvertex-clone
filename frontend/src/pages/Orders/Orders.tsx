@@ -343,7 +343,7 @@ const Orders: React.FC = () => {
                 <DatePicker
                   label="Дата от"
                   value={filters.date_from}
-                  onChange={(date) => setFilters({ ...filters, date_from: date })}
+                  onChange={(date: any) => setFilters({ ...filters, date_from: date })}
                   slotProps={{ textField: { fullWidth: true } }}
                 />
               </Grid>
@@ -352,7 +352,7 @@ const Orders: React.FC = () => {
                 <DatePicker
                   label="Дата до"
                   value={filters.date_to}
-                  onChange={(date) => setFilters({ ...filters, date_to: date })}
+                  onChange={(date: any) => setFilters({ ...filters, date_to: date })}
                   slotProps={{ textField: { fullWidth: true } }}
                 />
               </Grid>

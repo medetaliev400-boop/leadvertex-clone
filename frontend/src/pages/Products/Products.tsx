@@ -636,11 +636,11 @@ const Products: React.FC = () => {
                 pageSize: pageSize,
               }}
               rowCount={totalProducts}
-              onPaginationModelChange={(model) => {
+              onPaginationModelChange={(model: any) => {
                 setPage(model.page + 1);
               }}
               checkboxSelection
-              onRowSelectionModelChange={(newSelection) => {
+              onRowSelectionModelChange={(newSelection: any) => {
                 setSelectedProducts(newSelection as number[]);
               }}
               disableRowSelectionOnClick

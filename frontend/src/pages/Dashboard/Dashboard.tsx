@@ -25,6 +25,14 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useAuth } from '../../contexts/AuthContext';
 import { apiService, Project } from '../../services/api';
 
+// Type casting for recharts components to avoid TypeScript issues
+const XAxisTyped = XAxis as any;
+const YAxisTyped = YAxis as any;
+const TooltipTyped = Tooltip as any;
+const LineTyped = Line as any;
+const PieTyped = Pie as any;
+const CellTyped = Cell as any;
+
 interface DashboardStats {
   totalOrders: number;
   newOrdersToday: number;
@@ -287,16 +295,16 @@ const Dashboard: React.FC = () => {
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={stats.dailyStats}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis yAxisId="orders" orientation="left" />
-                  <YAxis yAxisId="revenue" orientation="right" />
-                  <Tooltip 
-                    formatter={(value, name) => [
+                  <XAxisTyped dataKey="date" />
+                  <YAxisTyped yAxisId="orders" orientation="left" />
+                  <YAxisTyped yAxisId="revenue" orientation="right" />
+                  <TooltipTyped 
+                    formatter={(value: any, name: any) => [
                       name === 'orders' ? value : formatCurrency(Number(value)),
                       name === 'orders' ? 'Заказы' : 'Выручка'
                     ]}
                   />
-                  <Line 
+                  <LineTyped 
                     yAxisId="orders"
                     type="monotone" 
                     dataKey="orders" 
@@ -304,7 +312,7 @@ const Dashboard: React.FC = () => {
                     strokeWidth={2}
                     dot={{ fill: '#2196f3' }}
                   />
-                  <Line 
+                  <LineTyped 
                     yAxisId="revenue"
                     type="monotone" 
                     dataKey="revenue" 
@@ -324,20 +332,20 @@ const Dashboard: React.FC = () => {
               </Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Pie
+                  <PieTyped
                     data={stats.ordersByStatus}
                     cx="50%"
                     cy="50%"
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="count"
-                    label={({ status, percent }) => `${status} ${(percent * 100).toFixed(0)}%`}
+                    label={({ status, percent }: any) => `${status} ${(percent * 100).toFixed(0)}%`}
                   >
                     {stats.ordersByStatus.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <CellTyped key={`cell-${index}`} fill={entry.color} />
                     ))}
-                  </Pie>
-                  <Tooltip />
+                  </PieTyped>
+                  <TooltipTyped />
                 </PieChart>
               </ResponsiveContainer>
             </Paper>
