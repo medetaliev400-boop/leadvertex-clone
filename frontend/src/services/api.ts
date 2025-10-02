@@ -118,7 +118,7 @@ class ApiService {
 
   async register(userData: RegisterRequest): Promise<ApiResponse<LoginResponse>> {
     try {
-      const response: AxiosResponse<LoginResponse> = await this.api.post('/auth/register', userData);
+      const response: AxiosResponse<LoginResponse> = await this.api.post('/admin/auth/register', userData);
       return {
         success: true,
         data: response.data,
