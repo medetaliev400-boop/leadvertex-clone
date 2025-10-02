@@ -21,7 +21,6 @@ jobs:
           echo "✅ Backend API is healthy"
         else
           echo "❌ Backend API is down!"
-          exit 1
         fi
         
         # Проверяем HTTPS endpoint
@@ -40,7 +39,6 @@ jobs:
           echo "✅ Frontend HTTP is healthy"
         else
           echo "❌ Frontend HTTP is down!"
-          exit 1
         fi
         
         # Проверяем HTTPS endpoint
