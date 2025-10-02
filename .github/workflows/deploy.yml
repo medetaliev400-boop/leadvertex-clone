@@ -77,14 +77,8 @@ jobs:
         script: |
           echo "🚀 Starting Backend Deployment"
           
-          # Переходим в директорию проекта или создаем ее
-          if [ ! -d "/opt/leadvertex-clone" ]; then
-            echo "📂 Cloning repository for first time..."
-            cd /opt
-            git clone https://github.com/medetaliev400-boop/leadvertex-clone.git
-          fi
-          
-          cd /opt/leadvertex-clone
+          # Переходим в директорию проекта
+          cd /root/leadvertex-clone
           
           # Обновляем код из репозитория
           echo "📥 Pulling latest code from repository"
@@ -131,33 +125,32 @@ jobs:
         script: |
           echo "🚀 Starting Frontend Deployment"
           
-          # Переходим в директорию проекта или создаем ее
-          if [ ! -d "/opt/leadvertex-clone" ]; then
-            echo "📂 Cloning repository for first time..."
-            cd /opt
-            git clone https://github.com/medetaliev400-boop/leadvertex-clone.git
-          fi
-          
-          cd /opt/leadvertex-clone
+          # Переходим в директорию проекта
+          cd /root/leadvertex-clone
           
           # Обновляем код из репозитория
           echo "📥 Pulling latest code from repository"
           git stash || true
           git pull origin main || git pull origin master
           
+          # Обновляем SSL сертификаты если нужно
+          echo "🔐 Setting up SSL certificates..."
+          bash docker/ssl/setup-ssl.sh
+          
           # Проверяем что frontend контейнеры запущены
-          echo "🐳 Checking Docker containers..."
-          if docker ps | grep -q "leadvertex-frontend"; then
-            echo "📦 Restarting frontend services..."
-            docker-compose -f docker-compose.frontend.yml restart frontend || docker restart leadvertex-frontend
+          echo "🐳 Rebuilding and restarting frontend services..."
+          docker-compose -f docker-compose.simple.yml down || true
+          docker-compose -f docker-compose.simple.yml up -d --build
+          
+          # Проверяем статус контейнера
+          echo "📊 Checking container status..."
+          sleep 10
+          if docker ps | grep -q "leadvertex-frontend-simple"; then
+            echo "✅ Frontend container is running"
           else
-            echo "📦 Building and starting frontend..."
-            cd frontend
-            # Простая сборка без полного деплой скрипта
-            if [ -f package.json ]; then
-              npm install --legacy-peer-deps || echo "npm install failed, continuing..."
-              npm run build || echo "npm build failed, continuing..."
-            fi
+            echo "❌ Frontend container failed to start"
+            docker logs leadvertex-frontend-simple || true
+            exit 1
           fi
           
           echo "✅ Frontend deployment completed!"
