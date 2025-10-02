@@ -1,0 +1,130 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+      release_notes:
+        description: 'Release notes'
+        required: false
+        type: string
+        default: 'Bug fixes and improvements'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Validate version format
+      run: |
+        if [[ ! "${{ github.event.inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "❌ Invalid version format. Use v1.0.0 format"
+          exit 1
+        fi
+        echo "✅ Version format is valid: ${{ github.event.inputs.version }}"
+
+    - name: Check if tag exists
+      run: |
+        if git tag | grep -q "^${{ github.event.inputs.version }}$"; then
+          echo "❌ Tag ${{ github.event.inputs.version }} already exists"
+          exit 1
+        fi
+        echo "✅ Tag ${{ github.event.inputs.version }} is available"
+
+    - name: Create and push tag
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        echo "🏷️ Creating tag ${{ github.event.inputs.version }}"
+        git tag -a "${{ github.event.inputs.version }}" -m "Release ${{ github.event.inputs.version }}"
+        git push origin "${{ github.event.inputs.version }}"
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        echo "📝 Generating changelog..."
+        
+        # Получаем предыдущий тег
+        PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+        
+        if [ -z "$PREVIOUS_TAG" ]; then
+          echo "🆕 First release"
+          CHANGELOG="Initial release of LeadVertex Clone"
+        else
+          echo "🔄 Changes since $PREVIOUS_TAG"
+          CHANGELOG=$(git log --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD)
+        fi
+        
+        # Экранируем для GitHub
+        CHANGELOG="${CHANGELOG//'%'/'%25'}"
+        CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+        CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+        
+        echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.event.inputs.version }}
+        release_name: LeadVertex Clone ${{ github.event.inputs.version }}
+        body: |
+          ## 🚀 LeadVertex Clone ${{ github.event.inputs.version }}
+          
+          ### 📋 Release Notes
+          ${{ github.event.inputs.release_notes }}
+          
+          ### 🔄 Changes
+          ${{ steps.changelog.outputs.changelog }}
+          
+          ### 🌐 Deployment Information
+          - **Frontend**: https://moonline.pw
+          - **Backend API**: https://api.moonline.pw
+          - **Release Date**: $(date '+%Y-%m-%d %H:%M:%S UTC')
+          
+          ### 📦 Installation
+          This release will be automatically deployed to production servers:
+          - Frontend Server: `139.59.158.109`
+          - Backend Server: `159.89.108.100`
+          
+          ### 🔗 Links
+          - [Documentation](.github/CI_CD_README.md)
+          - [Deployment Guide](DEPLOYMENT_GUIDE_COMPLETE.md)
+        draft: false
+        prerelease: false
+
+    - name: Trigger Production Deployment
+      run: |
+        echo "🚀 Release ${{ github.event.inputs.version }} created successfully!"
+        echo "✅ Production deployment will be triggered automatically"
+        echo "🌐 Check deployment status in Actions tab"
+
+  # Автоматический деплой после создания релиза
+  deploy-release:
+    needs: create-release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Trigger Deploy Workflow
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const result = await github.rest.actions.createWorkflowDispatch({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'deploy.yml',
+            ref: '${{ github.event.inputs.version }}'
+          });
+          
+          console.log('🚀 Deploy workflow triggered for release ${{ github.event.inputs.version }}');
+        github-token: ${{ secrets.GITHUB_TOKEN }}

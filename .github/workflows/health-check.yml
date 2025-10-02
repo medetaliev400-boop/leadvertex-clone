@@ -1,0 +1,78 @@
+name: Health Check Servers
+
+on:
+  schedule:
+    # Проверка каждые 15 минут
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    # Ручной запуск
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check Backend Health
+      run: |
+        echo "🔍 Checking Backend Server (159.89.108.100)"
+        
+        # Проверяем API endpoint
+        if curl -f -s --max-time 10 "http://159.89.108.100:8000/health" > /dev/null; then
+          echo "✅ Backend API is healthy"
+        else
+          echo "❌ Backend API is down!"
+          exit 1
+        fi
+        
+        # Проверяем HTTPS endpoint
+        if curl -k -f -s --max-time 10 "https://159.89.108.100/health" > /dev/null; then
+          echo "✅ Backend HTTPS is healthy"
+        else
+          echo "⚠️ Backend HTTPS might have issues"
+        fi
+
+    - name: Check Frontend Health
+      run: |
+        echo "🔍 Checking Frontend Server (139.59.158.109)"
+        
+        # Проверяем HTTP endpoint
+        if curl -f -s --max-time 10 "http://139.59.158.109/health" > /dev/null; then
+          echo "✅ Frontend HTTP is healthy"
+        else
+          echo "❌ Frontend HTTP is down!"
+          exit 1
+        fi
+        
+        # Проверяем HTTPS endpoint
+        if curl -k -f -s --max-time 10 "https://139.59.158.109/health" > /dev/null; then
+          echo "✅ Frontend HTTPS is healthy"
+        else
+          echo "⚠️ Frontend HTTPS might have issues"
+        fi
+        
+        # Проверяем домен
+        if curl -k -f -s --max-time 10 "https://moonline.pw/health" > /dev/null; then
+          echo "✅ Domain moonline.pw is healthy"
+        else
+          echo "⚠️ Domain moonline.pw might not be configured yet"
+        fi
+
+    - name: Check API Connectivity
+      run: |
+        echo "🔍 Checking API connectivity from Frontend"
+        
+        # Проверяем проксирование API
+        if curl -k -f -s --max-time 10 "https://139.59.158.109/api/health" > /dev/null; then
+          echo "✅ API proxy is working"
+        else
+          echo "⚠️ API proxy might have issues"
+        fi
+
+    - name: Report Status
+      if: always()
+      run: |
+        echo "📊 Health check completed"
+        echo "Timestamp: $(date)"
+        echo "Backend Server: 159.89.108.100"
+        echo "Frontend Server: 139.59.158.109"
+        echo "Domain: moonline.pw"
